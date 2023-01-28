@@ -2,10 +2,14 @@ import {
   Box,
   Text,
 } from "@primer/react";
-
+import { useSession } from "next-auth/react";
 import { AppHeader, Chat } from "@components";
 
-export default function Home() {
+const Home = () => {
+  const { data: session, status } = useSession();
+  
+  console.log(session, status)
+
   return (
     <Box className="main">
       <Box className="header">
@@ -35,3 +39,5 @@ export default function Home() {
     </Box>
   );
 }
+
+export default Home;

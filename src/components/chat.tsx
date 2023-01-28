@@ -10,6 +10,10 @@ const Chat = () => {
   const chat = useRef<HTMLDivElement>(null);
   const chatContainer = useRef<HTMLDivElement>(null);
   const chatMessageBox = useRef<HTMLInputElement>(null);
+  const musicPlayers = useRef<HTMLAudioElement | undefined>(
+    typeof Audio !== "undefined" ? new Audio("/audio/message.mp3") : undefined
+  );
+  
 
   const getMessage = (message: string): Promise<Turn> => {
     return new Promise<Turn>((resolve, reject) => {
@@ -36,6 +40,7 @@ const Chat = () => {
         },
       ]);
       const response = await getMessage(message);
+      musicPlayers.current?.play();
       setMessages([
         ...messages,
         { message: message, status: "done", type: "user" },
