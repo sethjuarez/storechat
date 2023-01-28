@@ -11,5 +11,6 @@ export const authOptions = {
       profilePhotoSize: 48,
     }),
   ],
+
 };
 export default NextAuth(authOptions);
