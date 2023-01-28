@@ -12,16 +12,17 @@
     "@next/font": "13.1.5",
     "@primer/react": "^35.18.0",
     "next": "13.1.5",
+    "next-auth": "^4.19.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "styled-components": "^5.3.6"
   },
   "devDependencies": {
-    "typescript": "4.9.4",
     "@types/node": "18.11.18",
     "@types/react": "18.0.27",
     "@types/react-dom": "18.0.10",
     "eslint": "8.32.0",
-    "eslint-config-next": "13.1.5"
+    "eslint-config-next": "13.1.5",
+    "typescript": "4.9.4"
   }
 }
