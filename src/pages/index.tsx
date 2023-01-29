@@ -28,6 +28,7 @@ const Home = () => {
     },
   ]);
   const [selectedCustomer, setSelectedCustomer] = useState(0);
+  const [product, setProduct] = useState("");
 
   const sendPrompt = async (message: string): Promise<Turn> => {
     const request: TurnRequest = {
@@ -97,7 +98,11 @@ const Home = () => {
           className="tabarea"
         >
           {sourcesOpen && (
-            <Sources customer={customers[selectedCustomer]} product={"TEST"} />
+            <Sources
+              customer={customers[selectedCustomer]}
+              product={product}
+              setProduct={setProduct}
+            />
           )}
           {!sourcesOpen && <div>Prompt</div>}
         </Box>
