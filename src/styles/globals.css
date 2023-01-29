@@ -43,16 +43,19 @@ body {
   margin-top: 10px;
 }
 
-.query {
+.prompt {
   grid-area: query;
   height: calc(100vh - 64px - 54px - 40px);
   display: flex;
   flex-direction: column;
+  margin-right: 8px;
 }
 
-.query > * {
+.tabarea {
   flex-grow: 1;
+  padding: 16px;
 }
+
 
 .footer {
   grid-area: footer;
@@ -61,6 +64,7 @@ body {
   flex-direction: column;
   align-items: flex-end;
 }
+
 .footer > * {
   vertical-align: center;
   margin-right: 10px;

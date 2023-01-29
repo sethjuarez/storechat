@@ -1,18 +1,21 @@
 import {
-  Box,
   Header,
   StyledOcticon,
   Avatar,
   ActionMenu,
   ActionList,
-  TextInput,
-  IconButton,
 } from "@primer/react";
 
-import { PackageIcon, ArrowRightIcon } from "@primer/octicons-react";
+import { PackageIcon, SyncIcon } from "@primer/octicons-react";
+import { Customer } from "@types";
 
+type Props = {
+  customers: Customer[];
+  selected: number;
+  setSelected: (index: number) => void;
+};
 
-const AppHeader = () => {
+const AppHeader = ({ customers, selected, setSelected }: Props) => {
   return (
     <Header>
       <Header.Item full>
@@ -24,20 +27,41 @@ const AppHeader = () => {
       <Header.Item>
         <ActionMenu>
           <ActionMenu.Anchor>
-            <Avatar src="images/sethjuarez.jpg" size={32} alt="@sethjuarez" />
+            <Avatar
+              src={customers[selected].image}
+              size={32}
+              alt={customers[selected].name}
+            />
           </ActionMenu.Anchor>
 
           <ActionMenu.Overlay>
             <ActionList>
-              <ActionList.Item>Switch User</ActionList.Item>
+              <ActionList.Group title="Switch User">
+                {customers.map(
+                  (c, i) =>
+                    i !== selected && (
+                      <ActionList.Item key={i} onClick={() => setSelected(i)}>
+                        <ActionList.LeadingVisual>
+                          <Avatar src={c.image} />
+                        </ActionList.LeadingVisual>
+                        {c.name}
+                      </ActionList.Item>
+                    )
+                )}
+              </ActionList.Group>
               <ActionList.Divider />
-              <ActionList.Item variant="danger">Reset Chat</ActionList.Item>
+              <ActionList.Item variant="danger">
+                <ActionList.LeadingVisual>
+                  <SyncIcon />
+                </ActionList.LeadingVisual>
+                Reset Chat
+              </ActionList.Item>
             </ActionList>
           </ActionMenu.Overlay>
         </ActionMenu>
       </Header.Item>
     </Header>
   );
-}
+};
 
 export default AppHeader;

@@ -33,3 +33,10 @@ export interface TurnResponse {
   object: string;
   usage: Usage;
 }
+
+export interface Customer {
+  image: string;
+  name: string;
+  age: number;
+  location: string;
+}
