@@ -79,8 +79,7 @@ const Chat = ({ customer, messages, setMessages, sendPrompt }: Props) => {
           ref={chatMessageBox}
           aria-label="chat"
           name="chat"
-          placeholder="start chatting!"
-          autoComplete="postal-code"
+          placeholder="How can we help you?"
           sx={{
             flexGrow: 1,
           }}

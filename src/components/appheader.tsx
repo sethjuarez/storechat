@@ -12,9 +12,10 @@ type Props = {
   customers: Customer[];
   selected: number;
   setSelected: (index: number) => void;
+  resetChat: () => void;
 };
 
-const AppHeader = ({ customers, selected, setSelected }: Props) => {
+const AppHeader = ({ customers, selected, setSelected, resetChat }: Props) => {
   return (
     <Header>
       <Header.Item full>
@@ -49,7 +50,7 @@ const AppHeader = ({ customers, selected, setSelected }: Props) => {
                 )}
               </ActionList.Group>
               <ActionList.Divider />
-              <ActionList.Item variant="danger">
+              <ActionList.Item variant="danger" onSelect={() => resetChat()}>
                 <ActionList.LeadingVisual>
                   <SyncIcon />
                 </ActionList.LeadingVisual>

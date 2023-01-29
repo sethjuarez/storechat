@@ -15,14 +15,15 @@ type Props = {
   customer: Customer;
   product: string;
   setProduct: (text: string) => void;
+  basePrompt: string;
+  setBasePrompt: (text: string) => void;
 };
 
-const Sources = ({ customer, product, setProduct }: Props) => {
+const Sources = ({ customer, product, setProduct, basePrompt, setBasePrompt }: Props) => {
   const [customerMd, setCustomerMd] = useState("");
-  const [value, setValue] = useState("");
 
   const handleChange: ChangeEventHandler<HTMLTextAreaElement> = (event) => {
-    setValue(event.target.value);
+    setBasePrompt(event.target.value);
   };
 
   const pageHeadSx = { fontSize: 20, padding: 1, fontWeight: 600, margin: 0 };
@@ -50,12 +51,12 @@ const Sources = ({ customer, product, setProduct }: Props) => {
 
   return (
     <Box className="source">
-      <Pagehead sx={pageHeadSx}>Base Prompt</Pagehead>
+      <Pagehead sx={pageHeadSx}>Prompt Template</Pagehead>
       <Textarea
         placeholder="Enter a description"
         onChange={handleChange}
-        value={value}
-        rows={3}
+        value={basePrompt}
+        rows={5}
       />
       <Pagehead sx={pageHeadSx}>Customer Context</Pagehead>
       <Box

@@ -54,6 +54,7 @@ body {
 .tabarea {
   flex-grow: 1;
   padding: 16px;
+  height: calc(100% - 200px);
 }
 
 .footer {
@@ -107,9 +108,19 @@ fieldset {
   padding-inline-end: 0px;
   padding-block-end: 0px;
   flex-grow: 1;
+  flex-shrink: 1;
 }
 
 p {
   margin: 0;
 }
 
+
+.promptContainer {
+  overflow-y: auto;
+  height: 100%;
+}
+
+.promptText {
+  white-space: pre-line;
+}
