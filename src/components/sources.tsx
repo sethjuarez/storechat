@@ -22,16 +22,18 @@ const Sources = ({ customer, product, setProduct }: Props) => {
       <Pagehead sx={pageHeadSx}>Customer Details</Pagehead>
 
       <Pagehead sx={pageHeadSx}>Relevant Product Details</Pagehead>
-      <MarkdownEditor
-        fullHeight={true}
-        value={product}
-        onChange={setProduct}
-        onRenderPreview={renderMarkdown}
-      >
-        <MarkdownEditor.Toolbar>
-          <MarkdownEditor.DefaultToolbarButtons />
-        </MarkdownEditor.Toolbar>
-      </MarkdownEditor>
+      {typeof window !== "undefined" && (
+        <MarkdownEditor
+          fullHeight={true}
+          value={product}
+          onChange={setProduct}
+          onRenderPreview={renderMarkdown}
+        >
+          <MarkdownEditor.Toolbar>
+            <MarkdownEditor.DefaultToolbarButtons />
+          </MarkdownEditor.Toolbar>
+        </MarkdownEditor>
+      )}
     </Box>
   );
 };
