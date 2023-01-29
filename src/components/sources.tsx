@@ -1,8 +1,15 @@
 import { Customer } from "@types";
+import dynamic from "next/dynamic";
 import { Box, Pagehead, ActionMenu, ActionList } from "@primer/react";
 import { PackageIcon, SyncIcon } from "@primer/octicons-react";
 import { useState } from "react";
-import { MarkdownEditor } from "@primer/react/drafts";
+//import { MarkdownEditor } from "@primer/react/drafts";
+
+const MarkdownEditor = dynamic(
+  () => import("@primer/react/drafts").then((mod) => mod.MarkdownEditor), {
+    ssr: false
+  }
+);
 
 type Props = {
   customer: Customer;
@@ -22,18 +29,15 @@ const Sources = ({ customer, product, setProduct }: Props) => {
       <Pagehead sx={pageHeadSx}>Customer Details</Pagehead>
 
       <Pagehead sx={pageHeadSx}>Relevant Product Details</Pagehead>
-      {typeof window !== "undefined" && (
+
         <MarkdownEditor
           fullHeight={true}
           value={product}
           onChange={setProduct}
           onRenderPreview={renderMarkdown}
         >
-          <MarkdownEditor.Toolbar>
-            <MarkdownEditor.DefaultToolbarButtons />
-          </MarkdownEditor.Toolbar>
+
         </MarkdownEditor>
-      )}
     </Box>
   );
 };
