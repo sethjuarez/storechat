@@ -11,10 +11,9 @@ const Home = () => {
   });
   const [sourcesOpen, setSourcesOpen] = useState(true);
   const [basePrompt, setBasePrompt] = useState(
-    `Please answer the question briefly, succinctly and in a personable manner using nice markdown and emojis as the Assistant **ONLY**.
-Use this context in the response: customer name: {name}, customer age: {age}, customer timezone: {location}.
+    `<Instructions>Please answer the question briefly, succinctly and in a personable manner using nice markdown as the Assistant. End your answer with a lot of fun emojis.
+<Context>Use this context in the response: customer name: {name}, customer age: {age}, customer timezone: {location}.
 <Documentation>{documentation}
-<Instructions>Do not respond as {name}.
 <Conversation>{conversation}
 {name}: {message}
 Assistant:`
@@ -53,19 +52,19 @@ Assistant:`
 
     
 
-    const convo = conversation.reduce(
+    const convo = conversation.slice(-4).reduce(
       (acc, cur) =>
         ` ${acc}${
           cur.type === "user"
-            ?  customers[selectedCustomer] + ": " + cur.message
-            : "Assistant: " + cur.message
+            ? customers[selectedCustomer].name + ": " + cur.message + "\n\n\n"
+            : "Assistant: " + cur.message + "\n\n\n"
         }\n`,
       ""
     );
 
     let doc = "";
     Object.entries(sources).forEach(([key, value]) => {
-      if (message.toLowerCase().includes(key.toLowerCase())) doc = sources[key];
+      if (message.toLowerCase().includes(key.toLowerCase())) doc = value;
     });
 
     if (doc.length > 0) {
@@ -87,7 +86,7 @@ Assistant:`
       prompt: p.replace("{conversation}", convo),
       temperature: 0.8,
       top_p: 1.0,
-      max_tokens: 100,
+      max_tokens: 500,
       stream: false,
     };
 
@@ -103,8 +102,10 @@ Assistant:`
 
     const response = await fetch("/api/chat", options);
     const c: TurnResponse = await response.json();
+    const reply = c.choices[0].text.split(customers[selectedCustomer].name + ": ");
+
     return {
-      message: c.choices[0].text,
+      message: reply[0].trim(),
       status: "done",
       type: "bot",
     };

@@ -74,6 +74,7 @@ const Sources = ({ customer, product, setProduct, basePrompt, setBasePrompt }: P
 
       <MarkdownEditor
         fullHeight={true}
+        viewMode={"edit"}
         value={product}
         onChange={setProduct}
         onRenderPreview={renderMarkdown}
