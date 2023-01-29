@@ -1,12 +1,27 @@
 import { Box, Spinner, PointerBox, Avatar, StyledOcticon } from "@primer/react";
-import { CopilotIcon, HubotIcon } from "@primer/octicons-react";
-import { Turn } from "@types";
+import { HubotIcon } from "@primer/octicons-react";
+import showdown from "showdown";
+import { Turn, Customer } from "@types";
+import { useRemark } from "react-remark";
+import remarkGemoji from "remark-gemoji";
+import { useEffect } from "react";
 
 type Props = {
   turn: Turn;
+  customer: Customer;
 };
 
-const TurnBubble = ({ turn }: Props) => {
+const TurnBubble = ({ turn, customer }: Props) => {
+  const [reactContent, setMarkdownSource] = useRemark({
+    //@ts-ignore
+    remarkPlugins: [remarkGemoji],
+    remarkToRehypeOptions: { allowDangerousHtml: true },
+    rehypeReactOptions: {
+      components: {
+        a: (props: any) => <a target="_blank" {...props} />,
+      },
+    },
+  });
   const getStyles = (type: string) => {
     const base = { m: 2, p: 2, marginTop: 1, marginBottom: 1 };
     if (type === "user") {
@@ -26,11 +41,23 @@ const TurnBubble = ({ turn }: Props) => {
     }
   };
 
+  useEffect(() => {
+    setMarkdownSource(turn.message);
+  }, [turn, setMarkdownSource]);
+
+  const renderMarkdown = (markdown: string): string =>
+    new showdown.Converter({
+      headerLevelStart: 3,
+      openLinksInNewWindow: true,
+      simplifiedAutoLink: false,
+      emoji: true,
+    }).makeHtml(markdown);
+
   const getContent = (turn: Turn) => {
     if (turn.status === "waiting") {
       return <Spinner size="small" />;
     } else {
-      return <span>{turn.message}</span>;
+      return <span>{reactContent}</span>;
     }
   };
 
@@ -38,14 +65,14 @@ const TurnBubble = ({ turn }: Props) => {
     return (
       <Box className="user">
         <PointerBox caret="right-bottom" sx={getStyles(turn.type)}>
-          {getContent(turn)}
+          {turn.message}
         </PointerBox>
         <div>
           <Avatar
             sx={{ mb: 1, ml: 2, mr: 3 }}
-            src="images/sethjuarez.jpg"
+            src={customer.image}
             size={24}
-            alt="@sethjuarez"
+            alt={customer.name}
           />
         </div>
       </Box>

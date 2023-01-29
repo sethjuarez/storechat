@@ -7,11 +7,11 @@ body {
 
 .main {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   grid-template-areas:
-    "header header header header"
-    "chat query query query"
-    "footer footer footer footer";
+    "header header header header header"
+    "chat chat query query query"
+    "footer footer footer footer footer";
   gap: 20px;
   margin: 0px;
 }
@@ -32,7 +32,7 @@ body {
 }
 
 .chatbox {
-  min-width: 400px;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
@@ -43,15 +43,18 @@ body {
   margin-top: 10px;
 }
 
-.query {
+.prompt {
   grid-area: query;
   height: calc(100vh - 64px - 54px - 40px);
   display: flex;
   flex-direction: column;
+  margin-right: 8px;
 }
 
-.query > * {
+.tabarea {
   flex-grow: 1;
+  padding: 16px;
+  height: calc(100% - 200px);
 }
 
 .footer {
@@ -61,6 +64,7 @@ body {
   flex-direction: column;
   align-items: flex-end;
 }
+
 .footer > * {
   vertical-align: center;
   margin-right: 10px;
@@ -82,10 +86,41 @@ body {
   justify-content: flex-end;
 }
 
-
 .bot {
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
 }
 
+.source {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  height: calc(100% - 16px);
+}
+
+fieldset {
+  display: flex;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  padding-block-start: 0.35em;
+  padding-inline-start: 0px;
+  padding-inline-end: 0px;
+  padding-block-end: 0px;
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+
+p {
+  margin: 0;
+}
+
+
+.promptContainer {
+  overflow-y: auto;
+  height: 100%;
+}
+
+.promptText {
+  white-space: pre-line;
+}
