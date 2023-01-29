@@ -39,7 +39,7 @@ const AppHeader = ({ customers, selected, setSelected }: Props) => {
                 {customers.map(
                   (c, i) =>
                     i !== selected && (
-                      <ActionList.Item key={i} onClick={() => setSelected(i)}>
+                      <ActionList.Item key={i} onSelect={() => setSelected(i)}>
                         <ActionList.LeadingVisual>
                           <Avatar src={c.image} />
                         </ActionList.LeadingVisual>

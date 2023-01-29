@@ -108,3 +108,8 @@ fieldset {
   padding-block-end: 0px;
   flex-grow: 1;
 }
+
+p {
+  margin: 0;
+}
+

@@ -1,6 +1,6 @@
 import { Box, Text, TabNav } from "@primer/react";
 import { AppHeader, Chat, Sources } from "@components";
-import { MouseEventHandler, useState } from "react";
+import { MouseEventHandler, useState, useEffect } from "react";
 import { Customer, Turn, TurnRequest, TurnResponse } from "@types";
 
 const Home = () => {
@@ -60,6 +60,10 @@ const Home = () => {
     e.preventDefault();
     setSourcesOpen(e.currentTarget.text === "Sources");
   };
+
+  useEffect(() => {
+    console.log(product);
+  }, [product])
 
   return (
     <Box className="main">
