@@ -1,11 +1,12 @@
 import { Box, Text, TabNav } from "@primer/react";
-import { AppHeader, Chat } from "@components";
+import { AppHeader, Chat, Sources } from "@components";
 import { MouseEventHandler, useState } from "react";
-import { Customer } from "@types";
+import { Customer, Turn, TurnRequest, TurnResponse } from "@types";
 
 const Home = () => {
   //const { data: session, status } = useSession();
   const [sourcesOpen, setSourcesOpen] = useState(true);
+  const [messages, setMessages] = useState<Turn[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([
     {
       name: "Seth Juarez",
@@ -28,18 +29,53 @@ const Home = () => {
   ]);
   const [selectedCustomer, setSelectedCustomer] = useState(0);
 
+  const sendPrompt = async (message: string): Promise<Turn> => {
+    const request: TurnRequest = {
+      prompt: message,
+      temperature: 0.0,
+      top_p: 1.0,
+      max_tokens: 500,
+      stream: false,
+    };
+
+    const options = {
+      method: "POST",
+      body: JSON.stringify(request),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    const response = await fetch("/api/chat", options);
+    const c: TurnResponse = await response.json();
+    return {
+      message: c.choices[0].text,
+      status: "done",
+      type: "bot",
+    };
+  };
+
   const toggleTabs: MouseEventHandler<HTMLAnchorElement> = (e) => {
     e.preventDefault();
     setSourcesOpen(e.currentTarget.text === "Sources");
-  }
+  };
 
   return (
     <Box className="main">
       <Box className="header">
-        <AppHeader customers={customers} selected={selectedCustomer} setSelected={setSelectedCustomer} />
+        <AppHeader
+          customers={customers}
+          selected={selectedCustomer}
+          setSelected={setSelectedCustomer}
+        />
       </Box>
       <Box className="chat">
-        <Chat />
+        <Chat
+          customer={customers[selectedCustomer]}
+          messages={messages}
+          setMessages={setMessages}
+          sendPrompt={sendPrompt}
+        />
       </Box>
       <Box className="prompt">
         <TabNav aria-label="Main">
@@ -60,7 +96,9 @@ const Home = () => {
           boxShadow="shadow.medium"
           className="tabarea"
         >
-          {sourcesOpen && <div>Sources</div>}
+          {sourcesOpen && (
+            <Sources customer={customers[selectedCustomer]} product={"TEST"} />
+          )}
           {!sourcesOpen && <div>Prompt</div>}
         </Box>
       </Box>

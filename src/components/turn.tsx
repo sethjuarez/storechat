@@ -1,12 +1,13 @@
 import { Box, Spinner, PointerBox, Avatar, StyledOcticon } from "@primer/react";
 import { CopilotIcon, HubotIcon } from "@primer/octicons-react";
-import { Turn } from "@types";
+import { Turn, Customer } from "@types";
 
 type Props = {
   turn: Turn;
+  customer: Customer;
 };
 
-const TurnBubble = ({ turn }: Props) => {
+const TurnBubble = ({ turn, customer }: Props) => {
   const getStyles = (type: string) => {
     const base = { m: 2, p: 2, marginTop: 1, marginBottom: 1 };
     if (type === "user") {
@@ -43,9 +44,9 @@ const TurnBubble = ({ turn }: Props) => {
         <div>
           <Avatar
             sx={{ mb: 1, ml: 2, mr: 3 }}
-            src="images/sethjuarez.jpg"
+            src={customer.image}
             size={24}
-            alt="@sethjuarez"
+            alt={customer.name}
           />
         </div>
       </Box>

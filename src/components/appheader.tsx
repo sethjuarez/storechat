@@ -1,3 +1,4 @@
+import { Customer } from "@types";
 import {
   Header,
   StyledOcticon,
@@ -5,9 +6,7 @@ import {
   ActionMenu,
   ActionList,
 } from "@primer/react";
-
 import { PackageIcon, SyncIcon } from "@primer/octicons-react";
-import { Customer } from "@types";
 
 type Props = {
   customers: Customer[];

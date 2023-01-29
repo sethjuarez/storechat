@@ -10,7 +10,7 @@ body {
   grid-template-columns: repeat(5, 1fr);
   grid-template-areas:
     "header header header header header"
-    "chat chat chat query query"
+    "chat chat query query query"
     "footer footer footer footer footer";
   gap: 20px;
   margin: 0px;
@@ -56,7 +56,6 @@ body {
   padding: 16px;
 }
 
-
 .footer {
   grid-area: footer;
   height: 54px;
@@ -86,10 +85,25 @@ body {
   justify-content: flex-end;
 }
 
-
 .bot {
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
 }
 
+.source {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+fieldset {
+  display: flex;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  padding-block-start: 0.35em;
+  padding-inline-start: 0px;
+  padding-inline-end: 0px;
+  padding-block-end: 0px;
+  flex-grow: 1;
+}
