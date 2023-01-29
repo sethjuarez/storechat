@@ -6,9 +6,7 @@ import { useSession } from "next-auth/react";
 import { AppHeader, Chat } from "@components";
 
 const Home = () => {
-  const { data: session, status } = useSession();
-  
-  console.log(session, status)
+  //const { data: session, status } = useSession();
 
   return (
     <Box className="main">

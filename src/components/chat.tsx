@@ -1,8 +1,8 @@
 import { Box, TextInput, IconButton, PointerBox } from "@primer/react";
 import { ArrowRightIcon } from "@primer/octicons-react";
-import { useState, useRef, UIEventHandler, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { default as TurnBubble } from "./turn";
-import { Turn } from "@types";
+import { Turn, TurnResponse, TurnRequest } from "@types";
 
 const Chat = () => {
   const [message, setMessage] = useState("");
@@ -13,18 +13,33 @@ const Chat = () => {
   const musicPlayers = useRef<HTMLAudioElement | undefined>(
     typeof Audio !== "undefined" ? new Audio("/audio/message.mp3") : undefined
   );
-  
 
-  const getMessage = (message: string): Promise<Turn> => {
-    return new Promise<Turn>((resolve, reject) => {
-      setTimeout(() => {
-        resolve({
-          message: "thanks for your question => " + message,
-          status: "done",
-          type: "bot",
-        });
-      }, 1000);
-    });
+  const sendMessage = async (message: string): Promise<Turn> => {
+
+    const request: TurnRequest = {
+      prompt: message,
+      temperature: 0.0,
+      top_p: 1.0,
+      max_tokens: 500,
+      stream: false
+    };
+
+    const options = {
+      method: "POST",
+      body: JSON.stringify(request),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    const response = await fetch("/api/chat", options);
+    const c: TurnResponse = await response.json();
+
+    return {
+      message: c.choices[0].text,
+      status: "done",
+      type: "bot",
+    };
   };
 
   const handleMessage = async () => {
@@ -39,7 +54,7 @@ const Chat = () => {
           type: "bot",
         },
       ]);
-      const response = await getMessage(message);
+      const response = await sendMessage(message);
       musicPlayers.current?.play();
       setMessages([
         ...messages,
@@ -48,7 +63,6 @@ const Chat = () => {
       ]);
     }
 
-    
     setMessage("");
     if (chatMessageBox.current) {
       chatMessageBox.current.disabled = false;
