@@ -19,6 +19,6 @@ class ChatApp extends App {
 }
 
 export default withApplicationInsights({
-  instrumentationKey: process.env.APP_INSIGHTS_CONNECTION || "",
+  connectionString: process.env.NEXT_PUBLIC_APP_INSIGHTS_CONNECTION || "",
   isEnabled: true,
 })(ChatApp);
