@@ -32,15 +32,7 @@ export const withApplicationInsights = (
     return class WithApplicationInsights extends React.Component<
       WithApplicationInsightsProps & AppProps
     > {
-      public static getInitialProps = async (appCtx: AppContext) => {
-        let appProps = { pageProps: {} };
-        if (App.getInitialProps) {
-          appProps = { ...appProps, ...(await App.getInitialProps(appCtx)) };
-        }
-        return {
-          ...appProps,
-        };
-      };
+
 
       public componentDidMount() {
         this.initializeAppInsights();
