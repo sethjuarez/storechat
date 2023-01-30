@@ -1,8 +1,6 @@
-
 import * as React from "react";
 import { AppProps, default as NextApp, AppContext } from "next/app";
 
-/*
 import {
   ApplicationInsights,
   IConfiguration,
@@ -81,4 +79,3 @@ export const withApplicationInsights = (
     };
   };
 };
-*/
