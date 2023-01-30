@@ -1,6 +1,5 @@
 import { Box, Spinner, PointerBox, Avatar, StyledOcticon } from "@primer/react";
 import { HubotIcon } from "@primer/octicons-react";
-import showdown from "showdown";
 import { Turn, Customer } from "@types";
 import { useRemark } from "react-remark";
 import remarkGemoji from "remark-gemoji";
@@ -44,14 +43,6 @@ const TurnBubble = ({ turn, customer }: Props) => {
   useEffect(() => {
     setMarkdownSource(turn.message);
   }, [turn, setMarkdownSource]);
-
-  const renderMarkdown = (markdown: string): string =>
-    new showdown.Converter({
-      headerLevelStart: 3,
-      openLinksInNewWindow: true,
-      simplifiedAutoLink: false,
-      emoji: true,
-    }).makeHtml(markdown);
 
   const getContent = (turn: Turn) => {
     if (turn.status === "waiting") {
