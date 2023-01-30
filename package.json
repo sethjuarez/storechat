@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@microsoft/applicationinsights-web": "^2.8.9",
     "@next/font": "13.1.5",
     "@primer/react": "^35.18.0",
     "next": "13.1.5",
