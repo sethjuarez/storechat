@@ -37,5 +37,5 @@ class ChatApp extends App {
 
 export default withApplicationInsights({
   connectionString: process.env.NEXT_PUBLIC_APP_INSIGHTS_CONNECTION || "",
-  isEnabled: process.env.NODE_ENV === "production",
+  isEnabled: true, //process.env.NODE_ENV === "production",
 })(ChatApp);
