@@ -44,6 +44,7 @@ export interface Customer {
 
 export interface RequestTelemetry {
   type: string;
+  host: string;
   message: string;
   name: string;
   email: string;
@@ -52,6 +53,7 @@ export interface RequestTelemetry {
 
 export interface ResponseTelemetry {
   type: string;
+  host: string;
   message: string;
   name: string;
   email: string;

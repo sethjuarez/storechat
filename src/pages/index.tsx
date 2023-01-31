@@ -1,7 +1,14 @@
 import { Box, Text, TabNav } from "@primer/react";
 import { AppHeader, Chat, Sources, Prompt } from "@components";
 import { MouseEventHandler, useState, useEffect } from "react";
-import { Customer, Turn, TurnRequest, TurnResponse, RequestTelemetry, ResponseTelemetry } from "@types";
+import {
+  Customer,
+  Turn,
+  TurnRequest,
+  TurnResponse,
+  RequestTelemetry,
+  ResponseTelemetry,
+} from "@types";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
 import {
@@ -15,7 +22,12 @@ const Home = () => {
   const [reqTelemetry, setReqTelemetry] = useState<RequestTelemetry | null>(
     null
   );
-  const trackRequest = useTrackEvent(appInsights, "Request", reqTelemetry);
+  const trackRequest = useTrackEvent(
+    appInsights,
+    "Request",
+    reqTelemetry,
+    true
+  );
   useEffect(() => {
     if (reqTelemetry) {
       trackRequest(reqTelemetry);
@@ -25,7 +37,12 @@ const Home = () => {
   const [resTelemetry, setResTelemetry] = useState<ResponseTelemetry | null>(
     null
   );
-  const trackResponse = useTrackEvent(appInsights, "Request", resTelemetry);
+  const trackResponse = useTrackEvent(
+    appInsights,
+    "Request",
+    resTelemetry,
+    true
+  );
   useEffect(() => {
     if (resTelemetry) {
       trackResponse(resTelemetry);
@@ -46,8 +63,6 @@ const Home = () => {
 Assistant:`
   );
   const [conversation, setConversation] = useState<Turn[]>([]);
-  
-
 
   const [prompt, setPrompt] = useState("");
   const [customers, setCustomers] = useState<Customer[]>([
@@ -80,17 +95,17 @@ Assistant:`
       .replaceAll("{location}", customers[selectedCustomer].location)
       .replace("{message}", message);
 
-    
-
-    const convo = conversation.slice(-4).reduce(
-      (acc, cur) =>
-        ` ${acc}${
-          cur.type === "user"
-            ? customers[selectedCustomer].name + ": " + cur.message + "\n\n\n"
-            : "Assistant: " + cur.message + "\n\n\n"
-        }\n`,
-      ""
-    );
+    const convo = conversation
+      .slice(-4)
+      .reduce(
+        (acc, cur) =>
+          ` ${acc}${
+            cur.type === "user"
+              ? customers[selectedCustomer].name + ": " + cur.message + "\n\n\n"
+              : "Assistant: " + cur.message + "\n\n\n"
+          }\n`,
+        ""
+      );
 
     let doc = "";
     Object.entries(sources).forEach(([key, value]) => {
@@ -122,6 +137,7 @@ Assistant:`
 
     setReqTelemetry({
       type: "request",
+      host: window ? window.location.hostname : "unknown",
       name: (session && session.user?.name) || "",
       email: (session && session.user?.email) || "",
       message: message,
@@ -140,10 +156,13 @@ Assistant:`
 
     const response = await fetch("/api/chat", options);
     const c: TurnResponse = await response.json();
-    const reply = c.choices[0].text.split(customers[selectedCustomer].name + ": ");
+    const reply = c.choices[0].text.split(
+      customers[selectedCustomer].name + ": "
+    );
 
     setResTelemetry({
       type: "response",
+      host: window ? window.location.hostname : "unknown",
       name: (session && session.user?.name) || "",
       email: (session && session.user?.email) || "",
       message: reply[0].trim(),
