@@ -137,6 +137,7 @@ Assistant:`
 
     setReqTelemetry({
       type: "request",
+      host: window ? window.location.hostname : "unknown",
       name: (session && session.user?.name) || "",
       email: (session && session.user?.email) || "",
       message: message,
@@ -161,6 +162,7 @@ Assistant:`
 
     setResTelemetry({
       type: "response",
+      host: window ? window.location.hostname : "unknown",
       name: (session && session.user?.name) || "",
       email: (session && session.user?.email) || "",
       message: reply[0].trim(),
