@@ -80,6 +80,7 @@ const Sources = ({
       <Pagehead sx={pageHeadSx}>Company Context (Products)</Pagehead>
 
       <MarkdownEditor
+        viewMode={"edit"}
         fullHeight={true}
         value={product}
         onChange={setProduct}

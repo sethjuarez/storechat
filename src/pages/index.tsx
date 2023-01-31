@@ -3,9 +3,11 @@ import { AppHeader, Chat, Sources, Prompt } from "@components";
 import { MouseEventHandler, useState, useEffect } from "react";
 import { Customer, Turn, TurnRequest, TurnResponse } from "@types";
 import Head from "next/head";
+//import { useSession } from "next-auth/react";
 
 const Home = () => {
   //const { data: session, status } = useSession();
+  
   const [sources, setSources] = useState<{ [id: string]: string }>({
     food: "/data/NaturesNourishment.txt",
     clean: "/data/EcoClean.txt",

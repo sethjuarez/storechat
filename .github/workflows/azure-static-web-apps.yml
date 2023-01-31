@@ -15,7 +15,9 @@ jobs:
         with:
           submodules: true
       - name: Set env vars
-        run: echo "NEXT_PUBLIC_APP_INSIGHTS_CONNECTION=${{ vars.NEXT_PUBLIC_APP_INSIGHTS_CONNECTION }}" >> $GITHUB_ENV
+        run: |
+          echo "NODE_ENV=production" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_APP_INSIGHTS_CONNECTION=${{ vars.NEXT_PUBLIC_APP_INSIGHTS_CONNECTION }}" >> $GITHUB_ENV
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
