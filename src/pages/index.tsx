@@ -1,13 +1,37 @@
 import { Box, Text, TabNav } from "@primer/react";
 import { AppHeader, Chat, Sources, Prompt } from "@components";
 import { MouseEventHandler, useState, useEffect } from "react";
-import { Customer, Turn, TurnRequest, TurnResponse } from "@types";
+import { Customer, Turn, TurnRequest, TurnResponse, RequestTelemetry, ResponseTelemetry } from "@types";
 import Head from "next/head";
-//import { useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import {
+  useAppInsightsContext,
+  useTrackEvent,
+} from "@microsoft/applicationinsights-react-js";
 
 const Home = () => {
-  //const { data: session, status } = useSession();
-  
+  const { data: session, status } = useSession();
+  const appInsights = useAppInsightsContext();
+  const [reqTelemetry, setReqTelemetry] = useState<RequestTelemetry | null>(
+    null
+  );
+  const trackRequest = useTrackEvent(appInsights, "Request", reqTelemetry);
+  useEffect(() => {
+    if (reqTelemetry) {
+      trackRequest(reqTelemetry);
+    }
+  }, [reqTelemetry, trackRequest]);
+
+  const [resTelemetry, setResTelemetry] = useState<ResponseTelemetry | null>(
+    null
+  );
+  const trackResponse = useTrackEvent(appInsights, "Request", resTelemetry);
+  useEffect(() => {
+    if (resTelemetry) {
+      trackResponse(resTelemetry);
+    }
+  }, [resTelemetry, trackResponse]);
+
   const [sources, setSources] = useState<{ [id: string]: string }>({
     food: "/data/NaturesNourishment.txt",
     clean: "/data/EcoClean.txt",
@@ -22,6 +46,9 @@ const Home = () => {
 Assistant:`
   );
   const [conversation, setConversation] = useState<Turn[]>([]);
+  
+
+
   const [prompt, setPrompt] = useState("");
   const [customers, setCustomers] = useState<Customer[]>([
     {
@@ -93,6 +120,14 @@ Assistant:`
       stream: false,
     };
 
+    setReqTelemetry({
+      type: "request",
+      name: (session && session.user?.name) || "",
+      email: (session && session.user?.email) || "",
+      message: message,
+      turn: request,
+    });
+
     setPrompt(request.prompt);
 
     const options = {
@@ -106,6 +141,14 @@ Assistant:`
     const response = await fetch("/api/chat", options);
     const c: TurnResponse = await response.json();
     const reply = c.choices[0].text.split(customers[selectedCustomer].name + ": ");
+
+    setResTelemetry({
+      type: "response",
+      name: (session && session.user?.name) || "",
+      email: (session && session.user?.email) || "",
+      message: reply[0].trim(),
+      turn: c,
+    });
 
     return {
       message: reply[0].trim(),
