@@ -1,8 +1,11 @@
 import dynamic from "next/dynamic";
 import { Customer } from "@types";
 import { Box, Pagehead, Textarea } from "@primer/react";
-import { useState, useEffect, ChangeEventHandler } from "react";
-import showdown from "showdown";
+import { useRemark } from "react-remark";
+import remarkGemoji from "remark-gemoji";
+import { useEffect, ChangeEventHandler } from "react";
+import ReactDOMServer from "react-dom/server";
+
 // dynamic loader to force client-side only
 const MarkdownEditor = dynamic(
   () => import("@primer/react/drafts").then((mod) => mod.MarkdownEditor),
@@ -19,8 +22,28 @@ type Props = {
   setBasePrompt: (text: string) => void;
 };
 
-const Sources = ({ customer, product, setProduct, basePrompt, setBasePrompt }: Props) => {
-  const [customerMd, setCustomerMd] = useState("");
+const Sources = ({
+  customer,
+  product,
+  setProduct,
+  basePrompt,
+  setBasePrompt,
+}: Props) => {
+  const [productMd, setProductMd] = useRemark({
+    //@ts-ignore
+    remarkPlugins: [remarkGemoji],
+    remarkToRehypeOptions: { allowDangerousHtml: true },
+    rehypeReactOptions: {
+      components: {
+        a: (props: any) => <a target="_blank" {...props} />,
+      },
+    },
+  });
+
+  const renderMarkdown = async (markdown: string) =>
+    new Promise<string>((resolve, _) => {
+      resolve(ReactDOMServer.renderToString(productMd || <></>));
+    });
 
   const handleChange: ChangeEventHandler<HTMLTextAreaElement> = (event) => {
     setBasePrompt(event.target.value);
@@ -28,26 +51,9 @@ const Sources = ({ customer, product, setProduct, basePrompt, setBasePrompt }: P
 
   const pageHeadSx = { fontSize: 20, padding: 1, fontWeight: 600, margin: 0 };
 
-  const renderMarkdown = async (markdown: string) =>
-    new Promise<string>((resolve, _) => {
-      const converter = new showdown.Converter({
-        headerLevelStart: 3,
-        openLinksInNewWindow: true,
-        simplifiedAutoLink: false,
-        emoji: true,
-      });
-      resolve(converter.makeHtml(markdown));
-    });
-
   useEffect(() => {
-    const getMarkdown = async () => {
-      const md = await renderMarkdown(
-        "`" + JSON.stringify(customer, null, 2) + "`"
-      );
-      setCustomerMd(md);
-    };
-    getMarkdown();
-  }, [customer]);
+    setProductMd(product);
+  }, [product, setProductMd]);
 
   return (
     <Box className="source">
@@ -60,7 +66,6 @@ const Sources = ({ customer, product, setProduct, basePrompt, setBasePrompt }: P
       />
       <Pagehead sx={pageHeadSx}>Customer Context</Pagehead>
       <Box
-        dangerouslySetInnerHTML={{ __html: customerMd }}
         borderColor="border.default"
         borderWidth={1}
         borderStyle="solid"
@@ -68,13 +73,15 @@ const Sources = ({ customer, product, setProduct, basePrompt, setBasePrompt }: P
         boxShadow="shadow.small"
         marginLeft={2}
         p={3}
-      />
+      >
+        <code>{JSON.stringify(customer, null, 2)}</code>
+      </Box>
 
       <Pagehead sx={pageHeadSx}>Company Context (Products)</Pagehead>
 
       <MarkdownEditor
-        fullHeight={true}
         viewMode={"edit"}
+        fullHeight={true}
         value={product}
         onChange={setProduct}
         onRenderPreview={renderMarkdown}
