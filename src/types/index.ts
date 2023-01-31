@@ -40,3 +40,20 @@ export interface Customer {
   age: number;
   location: string;
 }
+
+
+export interface RequestTelemetry {
+  type: string;
+  message: string;
+  name: string;
+  email: string;
+  turn: TurnRequest;
+}
+
+export interface ResponseTelemetry {
+  type: string;
+  message: string;
+  name: string;
+  email: string;
+  turn: TurnResponse;
+}
