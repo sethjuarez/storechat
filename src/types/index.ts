@@ -34,6 +34,10 @@ export interface TurnResponse {
   usage: Usage;
 }
 
+export interface ExtendedTurnResponse extends TurnResponse {
+  message: string;
+}
+
 export interface Customer {
   image: string;
   name: string;
