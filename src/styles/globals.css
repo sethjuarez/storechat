@@ -16,6 +16,21 @@ body {
   margin: 0px;
 }
 
+.chat {
+  grid-area: chat;
+  height: calc(100vh - 64px - 54px - 40px);
+  display: flex;
+  justify-content: center;
+}
+
+.prompt {
+  grid-area: query;
+  height: calc(100vh - 64px - 54px - 40px);
+  display: flex;
+  flex-direction: column;
+  margin-right: 8px;
+}
+
 @media (max-width: 760px) {
   .main {
     display: grid;
@@ -25,8 +40,25 @@ body {
       "chat"
       "query"
       "footer";
-    gap: 20px;
+    gap: 10px;
     margin: 0px;
+  }
+
+  .chat {
+    grid-area: chat;
+    height: calc(100vh - 64px - 20px);
+    display: flex;
+    justify-content: center;
+    margin-right: 8px;
+  }
+
+  .prompt {
+    grid-area: query;
+    height: calc(100vh - 64px - 54px - 40px);
+    display: flex;
+    flex-direction: column;
+    margin-right: 8px;
+    margin-left: 8px;
   }
 }
 
@@ -36,13 +68,6 @@ body {
 
 .header {
   grid-area: header;
-}
-
-.chat {
-  grid-area: chat;
-  height: calc(100vh - 64px - 54px - 40px);
-  display: flex;
-  justify-content: center;
 }
 
 .chatbox {
@@ -55,14 +80,6 @@ body {
   display: flex;
   flex-direction: row;
   margin-top: 10px;
-}
-
-.prompt {
-  grid-area: query;
-  height: calc(100vh - 64px - 54px - 40px);
-  display: flex;
-  flex-direction: column;
-  margin-right: 8px;
 }
 
 .tabarea {
