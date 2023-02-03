@@ -16,6 +16,20 @@ body {
   margin: 0px;
 }
 
+@media (max-width: 760px) {
+  .main {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    grid-template-areas:
+      "header"
+      "chat"
+      "query"
+      "footer";
+    gap: 20px;
+    margin: 0px;
+  }
+}
+
 .main > * {
   padding: 0px;
 }
@@ -114,7 +128,6 @@ fieldset {
 p {
   margin: 0;
 }
-
 
 .promptContainer {
   overflow-y: auto;
