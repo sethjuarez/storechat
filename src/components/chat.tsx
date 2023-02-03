@@ -9,7 +9,7 @@ import { RootState } from "@services/store";
 
 type Props = {
   customer: Customer;
-  sendPrompt: (prompt: string) => Promise<string>;
+  sendPrompt: (prompt: string) => Promise<void>;
 };
 
 const Chat = ({ customer, sendPrompt }: Props) => {
@@ -25,20 +25,27 @@ const Chat = ({ customer, sendPrompt }: Props) => {
     typeof Audio !== "undefined" ? new Audio("/audio/message.mp3") : undefined
   );
 
+  const toggleDisabled = () => {
+    if (chatMessageBox.current) {
+      if (chatMessageBox.current.disabled) {
+        chatMessageBox.current.disabled = false;
+        chatMessageBox.current.focus();
+      } else {
+        chatMessageBox.current.disabled = true;
+      }
+    }
+  };
+
   const handleMessage = async () => {
-    if (chatMessageBox.current) chatMessageBox.current.disabled = true;
     if (message.trim().length > 0) {
+      toggleDisabled();
       dispatch(addRequest(message));
       setIsThinking(true);
-      const response = await sendPrompt(message);
+      await sendPrompt(message);
       musicPlayers.current?.play();
       setIsThinking(false);
-    }
-
-    setMessage("");
-    if (chatMessageBox.current) {
-      chatMessageBox.current.disabled = false;
-      chatMessageBox.current.focus();
+      setMessage("");
+      toggleDisabled();
     }
   };
 
@@ -83,7 +90,7 @@ const Chat = ({ customer, sendPrompt }: Props) => {
           }}
         />
         <IconButton
-          onClick={handleMessage}
+          onClick={() => handleMessage()}
           aria-label="Search"
           icon={ArrowRightIcon}
           sx={{ marginLeft: 1 }}

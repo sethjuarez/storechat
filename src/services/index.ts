@@ -1,11 +1,12 @@
-import { isNotNullOrUndefined } from "@microsoft/applicationinsights-core-js";
-import {
+ import {
   TurnResponse,
   TurnRequest,
   Customer,
   Turn,
   ExtendedTurnResponse,
+  User,
 } from "@types";
+import { IAppInsights } from "@microsoft/applicationinsights-common";
 
 export class JsonService<Request, Response> {
   private _url: string;
@@ -68,12 +69,25 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
   private _template: string;
   private _document: string;
   private _customer: Customer;
+  private _telemetry: { host: string; name: string; email: string };
+  private _insights: IAppInsights;
 
-  constructor(template: string, document: string, customer: Customer) {
+  constructor(
+    template: string,
+    document: string,
+    customer: Customer,
+    user: { name: string; email: string },
+    insights: IAppInsights
+  ) {
     super("/api/chat");
     this._template = template;
     this._document = document;
     this._customer = customer;
+    this._telemetry = {
+      host: window ? window.location.hostname : "unknown",
+      ...user,
+    };
+    this._insights = insights;
   }
 
   createPrompt = (message: string, chat: Turn[]) => {
@@ -104,22 +118,45 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
   };
 
   createRequest = (message: string, chat: Turn[]): TurnRequest => {
-    return {
+    const turn = {
       prompt: this.createPrompt(message, chat),
       temperature: 0.8,
       top_p: 1.0,
       max_tokens: 500,
       stream: false,
     };
+
+    this._insights.trackEvent(
+      { name: "request" },
+      {
+        ...this._telemetry,
+        type: "request",
+        message: message,
+        turn: turn,
+      }
+    );
+
+    return turn;
   };
 
-  prompt = async (request: TurnRequest): Promise<ExtendedTurnResponse> => {
+  prompt = async (request: TurnRequest): Promise<string> => {
     // get response
     const response = await this.call(request);
     // clean it up
     const reply = response.choices[0].text
       .split(this._customer.name + ": ")[0]
       .trim();
-    return { ...response, message: reply };
+
+    this._insights.trackEvent(
+      { name: "response" },
+      {
+        ...this._telemetry,
+        type: "response",
+        message: reply,
+        turn: response,
+      }
+    );
+    
+    return reply;
   };
 }

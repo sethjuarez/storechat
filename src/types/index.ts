@@ -47,19 +47,32 @@ export interface Customer {
 
 
 export interface RequestTelemetry {
-  type: string;
   host: string;
-  message: string;
   name: string;
   email: string;
+  type: string;
+  message: string;
   turn: TurnRequest;
 }
 
 export interface ResponseTelemetry {
-  type: string;
   host: string;
-  message: string;
   name: string;
   email: string;
+  type: string;
+  message: string;
   turn: TurnResponse;
+}
+
+export interface Prompt {
+  template: string;
+  created: string;
+  modified: string;
+}
+
+export interface User {
+  name: string;
+  email: string;
+  expires: string;
+  status: "authenticated" | "loading" | "unauthenticated";
 }

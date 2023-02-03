@@ -13,7 +13,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <AzureAppInsights>
         <SessionProvider session={pageProps.session}>
           <ThemeProvider>
-              <Component {...pageProps} />
+            <Component {...pageProps} />
           </ThemeProvider>
         </SessionProvider>
       </AzureAppInsights>

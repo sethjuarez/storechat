@@ -1,114 +1,49 @@
-import { Box, Text, TabNav } from "@primer/react";
-import { AppHeader, Chat, Sources, Prompt } from "@components";
-import { MouseEventHandler, useEffect, useState } from "react";
 import Head from "next/head";
+import { PromptService } from "@services";
 import { useSession } from "next-auth/react";
-import {
-  useAppInsightsContext,
-  useTrackEvent,
-} from "@microsoft/applicationinsights-react-js";
-import { useAppDispatch, useAppSelector } from "@services/hooks";
 import { addResponse } from "@services/chatSlice";
-import { PromptService, DocumentService } from "@services";
-import { clearTurns } from "@services/chatSlice";
-import { RequestTelemetry, ResponseTelemetry } from "@types";
+import { Box, Text, TabNav } from "@primer/react";
+import { MouseEventHandler, useState } from "react";
+import { currentCustomer } from "@services/customerSlice";
+import { AppHeader, Chat, Sources, Prompt } from "@components";
+import { useAppDispatch, useAppSelector } from "@services/hooks";
+import { currentPrompt, setCurrentPrompt } from "@services/promptSlice";
+import { currentDocument, fetchDocument } from "@services/documentSlice";
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 
 const Home = () => {
+  const appInsights = useAppInsightsContext();
   const dispatch = useAppDispatch();
-  const customers = useAppSelector((state) => state.customers);
+  const customer = useAppSelector(currentCustomer);
+  const basePrompt = useAppSelector(currentPrompt);
   const chat = useAppSelector((state) => state.chat);
+  const document = useAppSelector(currentDocument);
 
   // State
-  const { data: session, status } = useSession();
-  const documentService = new DocumentService();
-
-  const [sourcesOpen, setSourcesOpen] = useState(true);
-  const [basePrompt, setBasePrompt] = useState(
-    `<Instructions>Please answer the question briefly, succinctly and in a personable manner using nice markdown as the Assistant. End your answer with a lot of fun emojis.
-<Context>Use this context in the response: customer name: {name}, customer age: {age}, customer timezone: {location}.
-<Documentation>{documentation}
-<Conversation>{conversation}
-{name}: {message}
-Assistant:`
-  );
-
-  const [prompt, setPrompt] = useState("");
-  const [product, setProduct] = useState("");
-  const [selectedCustomer, setSelectedCustomer] = useState(0);
-
-  // tracking
-  const appInsights = useAppInsightsContext();
-  const [reqTelemetry, setReqTelemetry] = useState<RequestTelemetry | null>(
-    null
-  );
-  const trackRequest = useTrackEvent(
-    appInsights,
-    "Request",
-    reqTelemetry,
-    true
-  );
-  useEffect(() => {
-    if (reqTelemetry) {
-      trackRequest(reqTelemetry);
-    }
-  }, [reqTelemetry, trackRequest]);
-
-  const [resTelemetry, setResTelemetry] = useState<ResponseTelemetry | null>(
-    null
-  );
-  const trackResponse = useTrackEvent(
-    appInsights,
-    "Request",
-    resTelemetry,
-    true
-  );
-  useEffect(() => {
-    if (resTelemetry) {
-      trackResponse(resTelemetry);
-    }
-  }, [resTelemetry, trackResponse]);
-  // methods
-  const sendPrompt = async (message: string): Promise<string> => {
-    const telem = {
-      host: window ? window.location.hostname : "unknown",
-      name: (session && session.user?.name) || "",
-      email: (session && session.user?.email) || "",
-    };
-
-    const document = await documentService.search(message);
-    if (document.length > 0) setProduct(document);
-    const service = new PromptService(
-      basePrompt,
-      document.length > 0 ? document : product,
-      customers[selectedCustomer]
-    );
-    const turn = service.createRequest(message, chat);
-    setPrompt(turn.prompt);
-    setReqTelemetry({
-      ...telem,
-      message: message,
-      type: "request",
-      turn: turn,
-    });
-
-    const response = await service.prompt(turn);
-    const { message: m, ...turnrequest } = response;
-
-    setResTelemetry({
-      ...telem,
-      message: m,
-      type: "response",
-      turn: turnrequest,
-    });
-
-    dispatch(addResponse(m));
-    return m;
+  const { data } = useSession();
+  const user = {
+    name: data?.user?.name || "",
+    email: data?.user?.email || "",
   };
+  const [sourcesOpen, setSourcesOpen] = useState(true);
+  const [prompt, setPrompt] = useState("");
 
-  const resetChat = () => {
-    clearTurns();
-    setPrompt("");
-    setProduct("");
+  const sendPrompt = async (message: string): Promise<void> => {
+    const { contents } = await dispatch(fetchDocument(message)).unwrap();
+    const itemDoc = contents.length == 0 ? document : contents;
+
+    const service = new PromptService(
+      basePrompt.template,
+      itemDoc,
+      customer,
+      user,
+      appInsights.getAppInsights()
+    );
+
+    const request = service.createRequest(message, chat);
+    setPrompt(request.prompt);
+    const response = await service.prompt(request);
+    dispatch(addResponse(response));
   };
 
   const toggleTabs: MouseEventHandler<HTMLAnchorElement> = (e) => {
@@ -123,18 +58,10 @@ Assistant:`
       </Head>
       <Box className="main">
         <Box className="header">
-          <AppHeader
-            customers={customers}
-            selected={selectedCustomer}
-            setSelected={setSelectedCustomer}
-            resetChat={resetChat}
-          />
+          <AppHeader />
         </Box>
         <Box className="chat">
-          <Chat
-            customer={customers[selectedCustomer]}
-            sendPrompt={sendPrompt}
-          />
+          <Chat customer={customer} sendPrompt={sendPrompt} />
         </Box>
         <Box className="prompt">
           <TabNav aria-label="Main">
@@ -156,13 +83,7 @@ Assistant:`
             className="tabarea"
           >
             {sourcesOpen && (
-              <Sources
-                customer={customers[selectedCustomer]}
-                product={product}
-                setProduct={setProduct}
-                basePrompt={basePrompt}
-                setBasePrompt={setBasePrompt}
-              />
+              <Sources />
             )}
             {!sourcesOpen && <Prompt prompt={prompt} />}
           </Box>

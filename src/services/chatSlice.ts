@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Turn } from "@types";
 import { RootState } from "./store";
 
@@ -8,6 +8,10 @@ const chatSlice = createSlice({
   name: "chat",
   initialState,
   reducers: {
+    addTurn: (state, action: PayloadAction<Turn>) => {
+      state.push(action.payload);
+    },
+    // TODO: perhaps use { reducer, payload } instead of action: PayloadAction
     addRequest: (state, action: PayloadAction<string>) => {
       state.push({ message: action.payload, status: "done", type: "user" });
       state.push({
@@ -21,26 +25,27 @@ const chatSlice = createSlice({
         state.length > 0 &&
         state[state.length - 1].type === "bot" &&
         state[state.length - 1].status === "waiting"
-        ) {
-          state[state.length - 1] = {
-            message: action.payload,
-            status: "done",
-            type: "bot",
-          };
-        } else {
-          state.push({
-            message: action.payload,
-            status: "done",
-            type: "bot",
-          });
-        }
-      },
-      clearTurns: (state) => {
-        state = [];
-      },
+      ) {
+        state[state.length - 1] = {
+          message: action.payload,
+          status: "done",
+          type: "bot",
+        };
+      } else {
+        state.push({
+          message: action.payload,
+          status: "done",
+          type: "bot",
+        });
+      }
     },
+    clearTurns: (state) => {
+      state.splice(0, state.length);
+    },
+  },
 });
 
-export const { addRequest, addResponse, clearTurns } = chatSlice.actions;
+
+export const { addTurn, addRequest, addResponse, clearTurns } = chatSlice.actions;
 export const selectChat = (state: RootState) => state.chat;
 export default chatSlice.reducer;

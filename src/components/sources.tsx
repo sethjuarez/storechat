@@ -5,6 +5,10 @@ import { useRemark } from "react-remark";
 import remarkGemoji from "remark-gemoji";
 import { useEffect, ChangeEventHandler } from "react";
 import ReactDOMServer from "react-dom/server";
+import { currentDocument, setDocument } from "@services/documentSlice";
+import { useAppDispatch, useAppSelector } from "@services/hooks";
+import { currentCustomer } from "@services/customerSlice";
+import { currentPrompt, setCurrentPrompt } from "@services/promptSlice";
 
 // dynamic loader to force client-side only
 const MarkdownEditor = dynamic(
@@ -14,21 +18,13 @@ const MarkdownEditor = dynamic(
   }
 );
 
-type Props = {
-  customer: Customer;
-  product: string;
-  setProduct: (text: string) => void;
-  basePrompt: string;
-  setBasePrompt: (text: string) => void;
-};
 
-const Sources = ({
-  customer,
-  product,
-  setProduct,
-  basePrompt,
-  setBasePrompt,
-}: Props) => {
+const Sources = () => {
+  const dispatch = useAppDispatch();
+  const document = useAppSelector(currentDocument);
+  const customer = useAppSelector(currentCustomer);
+  const basePrompt = useAppSelector(currentPrompt);
+  
   const [productMd, setProductMd] = useRemark({
     //@ts-ignore
     remarkPlugins: [remarkGemoji],
@@ -46,14 +42,14 @@ const Sources = ({
     });
 
   const handleChange: ChangeEventHandler<HTMLTextAreaElement> = (event) => {
-    setBasePrompt(event.target.value);
+    dispatch(setCurrentPrompt(event.target.value));
   };
 
   const pageHeadSx = { fontSize: 20, padding: 1, fontWeight: 600, margin: 0 };
 
   useEffect(() => {
-    setProductMd(product);
-  }, [product, setProductMd]);
+    setProductMd(document);
+  }, [document, setProductMd]);
 
   return (
     <Box className="source">
@@ -61,7 +57,7 @@ const Sources = ({
       <Textarea
         placeholder="Enter a description"
         onChange={handleChange}
-        value={basePrompt}
+        value={basePrompt.template}
         rows={5}
       />
       <Pagehead sx={pageHeadSx}>Customer Context</Pagehead>
@@ -82,8 +78,8 @@ const Sources = ({
       <MarkdownEditor
         viewMode={"edit"}
         fullHeight={true}
-        value={product}
-        onChange={setProduct}
+        value={document}
+        onChange={(md) => dispatch(setDocument(md))}
         onRenderPreview={renderMarkdown}
       >
         <></>

@@ -7,15 +7,20 @@ import {
   ActionList,
 } from "@primer/react";
 import { PackageIcon, SyncIcon } from "@primer/octicons-react";
+import { useAppDispatch, useAppSelector } from "@services/hooks";
+import { clearTurns } from "@services/chatSlice";
+import {
+  setSelectedCustomer,
+  selectCustomers,
+  selectCurrentCustomer,
+} from "@services/customerSlice";
 
-type Props = {
-  customers: Customer[];
-  selected: number;
-  setSelected: (index: number) => void;
-  resetChat: () => void;
-};
 
-const AppHeader = ({ customers, selected, setSelected, resetChat }: Props) => {
+const AppHeader = () => {
+  const dispatch = useAppDispatch();
+  const customers = useAppSelector(selectCustomers);
+  const selectedCustomer = useAppSelector(selectCurrentCustomer);
+
   return (
     <Header>
       <Header.Item full>
@@ -28,9 +33,9 @@ const AppHeader = ({ customers, selected, setSelected, resetChat }: Props) => {
         <ActionMenu>
           <ActionMenu.Anchor>
             <Avatar
-              src={customers[selected].image}
+              src={customers[selectedCustomer].image}
               size={32}
-              alt={customers[selected].name}
+              alt={customers[selectedCustomer].name}
             />
           </ActionMenu.Anchor>
 
@@ -39,8 +44,8 @@ const AppHeader = ({ customers, selected, setSelected, resetChat }: Props) => {
               <ActionList.Group title="Switch User">
                 {customers.map(
                   (c, i) =>
-                    i !== selected && (
-                      <ActionList.Item key={i} onSelect={() => setSelected(i)}>
+                    i !== selectedCustomer && (
+                      <ActionList.Item key={i} onSelect={() => dispatch(setSelectedCustomer(i))}>
                         <ActionList.LeadingVisual>
                           <Avatar src={c.image} />
                         </ActionList.LeadingVisual>
@@ -50,7 +55,7 @@ const AppHeader = ({ customers, selected, setSelected, resetChat }: Props) => {
                 )}
               </ActionList.Group>
               <ActionList.Divider />
-              <ActionList.Item variant="danger" onSelect={() => resetChat()}>
+              <ActionList.Item variant="danger" onSelect={() => dispatch(clearTurns())}>
                 <ActionList.LeadingVisual>
                   <SyncIcon />
                 </ActionList.LeadingVisual>
