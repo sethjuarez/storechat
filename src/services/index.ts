@@ -34,6 +34,7 @@ export class JsonService<Request, Response> {
 export class DocumentService {
   private _sources: { [id: string]: string };
   constructor() {
+    // TODO: perhaps abstract sources to store
     this._sources = {
       food: "/data/NaturesNourishment.txt",
       clean: "/data/EcoClean.txt",
@@ -76,7 +77,6 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
   }
 
   createPrompt = (message: string, chat: Turn[]) => {
-    console.log(this._document);
     // token replacement on base template
     let prompt = this._template
       .replaceAll("{name}", this._customer.name)
@@ -92,11 +92,11 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
       .slice(-4)
       .reduce(
         (acc, cur) =>
-          ` ${acc}${
+          `${acc}${
             cur.type === "user"
               ? this._customer.name + ": " + cur.message + "\n"
               : "Assistant: " + cur.message + "\n"
-          }\n`,
+          }`,
         ""
       );
 

@@ -72,14 +72,14 @@ Assistant:`
     const telem = {
       host: window ? window.location.hostname : "unknown",
       name: (session && session.user?.name) || "",
-      email: (session && session.user?.email) || ""
+      email: (session && session.user?.email) || "",
     };
 
     const document = await documentService.search(message);
-    setProduct(document);
+    if (document.length > 0) setProduct(document);
     const service = new PromptService(
       basePrompt,
-      document,
+      document.length > 0 ? document : product,
       customers[selectedCustomer]
     );
     const turn = service.createRequest(message, chat);
@@ -92,7 +92,7 @@ Assistant:`
     });
 
     const response = await service.prompt(turn);
-    const { message: m , ...turnrequest } = response;
+    const { message: m, ...turnrequest } = response;
 
     setResTelemetry({
       ...telem,
