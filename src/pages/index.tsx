@@ -1,221 +1,102 @@
-import { Box, Text, TabNav } from "@primer/react";
-import { AppHeader, Chat, Sources, Prompt } from "@components";
-import { MouseEventHandler, useState, useEffect } from "react";
-import {
-  Customer,
-  Turn,
-  TurnRequest,
-  TurnResponse,
-  RequestTelemetry,
-  ResponseTelemetry,
-} from "@types";
 import Head from "next/head";
+import { PromptService } from "@services";
 import { useSession } from "next-auth/react";
-import {
-  useAppInsightsContext,
-  useTrackEvent,
-} from "@microsoft/applicationinsights-react-js";
+import { addResponse } from "@services/chatSlice";
+import { Box, Text, TabNav } from "@primer/react";
+import { useState } from "react";
+import { currentCustomer } from "@services/customerSlice";
+import { AppHeader, Chat, Sources, Prompt, Content } from "@components";
+import { useAppDispatch, useAppSelector } from "@services/hooks";
+import { currentPrompt, setCurrentPrompt } from "@services/promptSlice";
+import { currentDocument, fetchDocument } from "@services/documentSlice";
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 
 const Home = () => {
-  const { data: session, status } = useSession();
   const appInsights = useAppInsightsContext();
-  const [reqTelemetry, setReqTelemetry] = useState<RequestTelemetry | null>(
-    null
-  );
-  const trackRequest = useTrackEvent(
-    appInsights,
-    "Request",
-    reqTelemetry,
-    true
-  );
-  useEffect(() => {
-    if (reqTelemetry) {
-      trackRequest(reqTelemetry);
-    }
-  }, [reqTelemetry, trackRequest]);
+  const dispatch = useAppDispatch();
+  const customer = useAppSelector(currentCustomer);
+  const basePrompt = useAppSelector(currentPrompt);
+  const chat = useAppSelector((state) => state.chat);
+  const document = useAppSelector(currentDocument);
 
-  const [resTelemetry, setResTelemetry] = useState<ResponseTelemetry | null>(
-    null
-  );
-  const trackResponse = useTrackEvent(
-    appInsights,
-    "Request",
-    resTelemetry,
-    true
-  );
-  useEffect(() => {
-    if (resTelemetry) {
-      trackResponse(resTelemetry);
-    }
-  }, [resTelemetry, trackResponse]);
-
-  const [sources, setSources] = useState<{ [id: string]: string }>({
-    food: "/data/NaturesNourishment.txt",
-    clean: "/data/EcoClean.txt",
-  });
-  const [sourcesOpen, setSourcesOpen] = useState(true);
-  const [basePrompt, setBasePrompt] = useState(
-    `<Instructions>Please answer the question briefly, succinctly and in a personable manner using nice markdown as the Assistant. End your answer with a lot of fun emojis.
-<Context>Use this context in the response: customer name: {name}, customer age: {age}, customer timezone: {location}.
-<Documentation>{documentation}
-<Conversation>{conversation}
-{name}: {message}
-Assistant:`
-  );
-  const [conversation, setConversation] = useState<Turn[]>([]);
-
+  // State
+  const { data } = useSession();
+  const user = {
+    name: data?.user?.name || "",
+    email: data?.user?.email || "",
+  };
   const [prompt, setPrompt] = useState("");
-  const [customers, setCustomers] = useState<Customer[]>([
-    {
-      name: "Seth",
-      image: "/images/sethjuarez.jpg",
-      age: 40,
-      location: "Pacific",
-    },
-    {
-      name: "Cassie",
-      image: "/images/cassiebreviu.jpg",
-      age: 23,
-      location: "Central",
-    },
-    {
-      name: "Vanessa",
-      image: "/images/vanessadiaz.jpg",
-      age: 23,
-      location: "Eastern",
-    },
-  ]);
-  const [selectedCustomer, setSelectedCustomer] = useState(0);
-  const [product, setProduct] = useState("");
+  const [currentTab, setCurrentTab] = useState<
+    "prompt" | "sources" | "content"
+  >("sources");
 
-  const sendPrompt = async (message: string): Promise<Turn> => {
-    let p = basePrompt
-      .replaceAll("{name}", customers[selectedCustomer].name)
-      .replaceAll("{age}", customers[selectedCustomer].age.toString())
-      .replaceAll("{location}", customers[selectedCustomer].location)
-      .replace("{message}", message);
+  // events
+  const sendPrompt = async (message: string): Promise<void> => {
+    const { contents } = await dispatch(fetchDocument(message)).unwrap();
+    const itemDoc = contents.length == 0 ? document : contents;
 
-    const convo = conversation
-      .slice(-4)
-      .reduce(
-        (acc, cur) =>
-          ` ${acc}${
-            cur.type === "user"
-              ? customers[selectedCustomer].name + ": " + cur.message + "\n\n\n"
-              : "Assistant: " + cur.message + "\n\n\n"
-          }\n`,
-        ""
-      );
-
-    let doc = "";
-    Object.entries(sources).forEach(([key, value]) => {
-      if (message.toLowerCase().includes(key.toLowerCase())) doc = value;
-    });
-
-    if (doc.length > 0) {
-      const documentation = await fetch(doc, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/text",
-        },
-      });
-
-      const contents = await documentation.text();
-      setProduct(contents);
-      p = p.replace("{documentation}", contents);
-    }
-
-    p = p.replace("{documentation}", product);
-
-    const request: TurnRequest = {
-      prompt: p.replace("{conversation}", convo),
-      temperature: 0.8,
-      top_p: 1.0,
-      max_tokens: 500,
-      stream: false,
-    };
-
-    setReqTelemetry({
-      type: "request",
-      host: window ? window.location.hostname : "unknown",
-      name: (session && session.user?.name) || "",
-      email: (session && session.user?.email) || "",
-      message: message,
-      turn: request,
-    });
-
-    setPrompt(request.prompt);
-
-    const options = {
-      method: "POST",
-      body: JSON.stringify(request),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    const response = await fetch("/api/chat", options);
-    const c: TurnResponse = await response.json();
-    const reply = c.choices[0].text.split(
-      customers[selectedCustomer].name + ": "
+    const service = new PromptService(
+      basePrompt.template,
+      itemDoc,
+      customer,
+      user,
+      appInsights.getAppInsights()
     );
 
-    setResTelemetry({
-      type: "response",
-      host: window ? window.location.hostname : "unknown",
-      name: (session && session.user?.name) || "",
-      email: (session && session.user?.email) || "",
-      message: reply[0].trim(),
-      turn: c,
-    });
-
-    return {
-      message: reply[0].trim(),
-      status: "done",
-      type: "bot",
-    };
-  };
-
-  const toggleTabs: MouseEventHandler<HTMLAnchorElement> = (e) => {
-    e.preventDefault();
-    setSourcesOpen(e.currentTarget.text === "Sources");
+    const request = service.createRequest(message, chat);
+    setPrompt(request.prompt);
+    const response = await service.prompt(request);
+    dispatch(addResponse(response));
   };
 
   return (
     <>
       <Head>
-        <title>Contoso Market ChatGPT</title>
+        <title>GreenLife - ChatGPT</title>
       </Head>
       <Box className="main">
         <Box className="header">
-          <AppHeader
-            customers={customers}
-            selected={selectedCustomer}
-            setSelected={setSelectedCustomer}
-            resetChat={() => {
-              setConversation([]);
-              setPrompt("");
-              setProduct("");
-            }}
-          />
+          <AppHeader />
         </Box>
         <Box className="chat">
-          <Chat
-            customer={customers[selectedCustomer]}
-            messages={conversation}
-            setMessages={setConversation}
-            sendPrompt={sendPrompt}
-          />
+          <Chat customer={customer} sendPrompt={sendPrompt} />
         </Box>
         <Box className="prompt">
           <TabNav aria-label="Main">
-            <TabNav.Link href="#" selected={sourcesOpen} onClick={toggleTabs}>
+            <TabNav.Link
+              href="#"
+              selected={currentTab === "sources"}
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentTab("sources");
+              }}
+            >
               Sources
             </TabNav.Link>
-            <TabNav.Link href="#" selected={!sourcesOpen} onClick={toggleTabs}>
+            <TabNav.Link
+              href="#"
+              selected={currentTab === "prompt"}
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentTab("prompt");
+              }}
+            >
               Prompt
             </TabNav.Link>
+            {/* 
+            <TabNav.Link
+              href="#"
+              selected={currentTab === "content"}
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentTab("content");
+              }}
+            >
+              Content
+            </TabNav.Link>
+            */}
           </TabNav>
+
           <Box
             borderColor="border.default"
             borderWidth={1}
@@ -226,16 +107,9 @@ Assistant:`
             boxShadow="shadow.medium"
             className="tabarea"
           >
-            {sourcesOpen && (
-              <Sources
-                customer={customers[selectedCustomer]}
-                product={product}
-                setProduct={setProduct}
-                basePrompt={basePrompt}
-                setBasePrompt={setBasePrompt}
-              />
-            )}
-            {!sourcesOpen && <Prompt prompt={prompt} />}
+            {currentTab === "sources" && <Sources />}
+            {currentTab === "prompt" && <Prompt prompt={prompt} />}
+            {/*currentTab === "content" && <Content />*/}
           </Box>
         </Box>
         <Box className="footer" bg="neutral.emphasisPlus">

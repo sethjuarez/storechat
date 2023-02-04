@@ -1,10 +1,15 @@
 import dynamic from "next/dynamic";
-import { Customer } from "@types";
-import { Box, Pagehead, Textarea } from "@primer/react";
+import { Box, Label, Textarea, FormControl, Autocomplete } from "@primer/react";
+import { ShareIcon } from "@primer/octicons-react";
+import { PageHeader } from "@primer/react/drafts";
 import { useRemark } from "react-remark";
 import remarkGemoji from "remark-gemoji";
 import { useEffect, ChangeEventHandler } from "react";
 import ReactDOMServer from "react-dom/server";
+import { currentDocument, setDocument } from "@services/documentSlice";
+import { useAppDispatch, useAppSelector } from "@services/hooks";
+import { currentCustomer } from "@services/customerSlice";
+import { currentPrompt, setCurrentPrompt } from "@services/promptSlice";
 
 // dynamic loader to force client-side only
 const MarkdownEditor = dynamic(
@@ -14,21 +19,13 @@ const MarkdownEditor = dynamic(
   }
 );
 
-type Props = {
-  customer: Customer;
-  product: string;
-  setProduct: (text: string) => void;
-  basePrompt: string;
-  setBasePrompt: (text: string) => void;
-};
+const Sources = () => {
+  const dispatch = useAppDispatch();
+  const document = useAppSelector(currentDocument);
+  const selectedDoc = useAppSelector((state) => state.documents.current)
+  const customer = useAppSelector(currentCustomer);
+  const basePrompt = useAppSelector(currentPrompt);
 
-const Sources = ({
-  customer,
-  product,
-  setProduct,
-  basePrompt,
-  setBasePrompt,
-}: Props) => {
   const [productMd, setProductMd] = useRemark({
     //@ts-ignore
     remarkPlugins: [remarkGemoji],
@@ -46,25 +43,39 @@ const Sources = ({
     });
 
   const handleChange: ChangeEventHandler<HTMLTextAreaElement> = (event) => {
-    setBasePrompt(event.target.value);
+    dispatch(setCurrentPrompt(event.target.value));
   };
 
-  const pageHeadSx = { fontSize: 20, padding: 1, fontWeight: 600, margin: 0 };
-
   useEffect(() => {
-    setProductMd(product);
-  }, [product, setProductMd]);
+    setProductMd(document);
+  }, [document, setProductMd]);
 
+  const sx = { flexDirection: "row" };
+  
   return (
     <Box className="source">
-      <Pagehead sx={pageHeadSx}>Prompt Template</Pagehead>
+      <PageHeader sx={sx}>
+        <PageHeader.TitleArea>
+          <PageHeader.Title>Prompt Template</PageHeader.Title>
+        </PageHeader.TitleArea>
+        <PageHeader.TrailingVisual>
+          <Label>{basePrompt.name}</Label>
+        </PageHeader.TrailingVisual>
+      </PageHeader>
       <Textarea
         placeholder="Enter a description"
         onChange={handleChange}
-        value={basePrompt}
-        rows={5}
+        value={basePrompt.template}
+        rows={8}
       />
-      <Pagehead sx={pageHeadSx}>Customer Context</Pagehead>
+      <PageHeader sx={sx}>
+        <PageHeader.TitleArea>
+          <PageHeader.Title>Customer Context</PageHeader.Title>
+        </PageHeader.TitleArea>
+        <PageHeader.TrailingVisual>
+          <Label>{customer.name}</Label>
+        </PageHeader.TrailingVisual>
+      </PageHeader>
       <Box
         borderColor="border.default"
         borderWidth={1}
@@ -76,14 +87,19 @@ const Sources = ({
       >
         <code>{JSON.stringify(customer, null, 2)}</code>
       </Box>
-
-      <Pagehead sx={pageHeadSx}>Company Context (Products)</Pagehead>
-
+      <PageHeader sx={sx}>
+        <PageHeader.TitleArea>
+          <PageHeader.Title>Company Context</PageHeader.Title>
+        </PageHeader.TitleArea>
+        <PageHeader.TrailingVisual>
+          <Label>{selectedDoc.length == 0 ? "None Selected" : selectedDoc}</Label>
+        </PageHeader.TrailingVisual>
+      </PageHeader>
       <MarkdownEditor
         viewMode={"edit"}
         fullHeight={true}
-        value={product}
-        onChange={setProduct}
+        value={document}
+        onChange={(md) => dispatch(setDocument(md))}
         onRenderPreview={renderMarkdown}
       >
         <></>

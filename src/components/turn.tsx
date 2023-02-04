@@ -26,14 +26,14 @@ const TurnBubble = ({ turn, customer }: Props) => {
     if (type === "user") {
       return {
         ...base,
-        ml: 10,
+        ml: 1,
         bg: "success.subtle",
         borderColor: "success.emphasis",
       };
     } else {
       return {
         ...base,
-        mr: 10,
+        mr: 1,
         bg: "accent.subtle",
         borderColor: "accent.emphasis",
       };
