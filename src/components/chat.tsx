@@ -1,8 +1,8 @@
-import { Box, TextInput, IconButton, PointerBox } from "@primer/react";
+import { Box, TextInput, IconButton } from "@primer/react";
 import { ArrowRightIcon } from "@primer/octicons-react";
 import { useState, useRef, useEffect } from "react";
 import { default as TurnBubble } from "./turn";
-import { Turn, TurnResponse, TurnRequest, Customer } from "@types";
+import { Customer } from "@types";
 import { useAppDispatch, useAppSelector } from "@services/hooks";
 import { addRequest } from "@services/chatSlice";
 import { RootState } from "@services/store";

@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
-import { Customer } from "@types";
-import { Box, Pagehead, Textarea } from "@primer/react";
+import { Box, Label, Textarea, FormControl, Autocomplete } from "@primer/react";
+import { ShareIcon } from "@primer/octicons-react";
+import { PageHeader } from "@primer/react/drafts";
 import { useRemark } from "react-remark";
 import remarkGemoji from "remark-gemoji";
 import { useEffect, ChangeEventHandler } from "react";
@@ -18,13 +19,13 @@ const MarkdownEditor = dynamic(
   }
 );
 
-
 const Sources = () => {
   const dispatch = useAppDispatch();
   const document = useAppSelector(currentDocument);
+  const selectedDoc = useAppSelector((state) => state.documents.current)
   const customer = useAppSelector(currentCustomer);
   const basePrompt = useAppSelector(currentPrompt);
-  
+
   const [productMd, setProductMd] = useRemark({
     //@ts-ignore
     remarkPlugins: [remarkGemoji],
@@ -45,22 +46,36 @@ const Sources = () => {
     dispatch(setCurrentPrompt(event.target.value));
   };
 
-  const pageHeadSx = { fontSize: 20, padding: 1, fontWeight: 600, margin: 0 };
-
   useEffect(() => {
     setProductMd(document);
   }, [document, setProductMd]);
 
+  const sx = { flexDirection: "row" };
+  
   return (
     <Box className="source">
-      <Pagehead sx={pageHeadSx}>Prompt Template</Pagehead>
+      <PageHeader sx={sx}>
+        <PageHeader.TitleArea>
+          <PageHeader.Title>Prompt Template</PageHeader.Title>
+        </PageHeader.TitleArea>
+        <PageHeader.TrailingVisual>
+          <Label>{basePrompt.name}</Label>
+        </PageHeader.TrailingVisual>
+      </PageHeader>
       <Textarea
         placeholder="Enter a description"
         onChange={handleChange}
         value={basePrompt.template}
-        rows={5}
+        rows={8}
       />
-      <Pagehead sx={pageHeadSx}>Customer Context</Pagehead>
+      <PageHeader sx={sx}>
+        <PageHeader.TitleArea>
+          <PageHeader.Title>Customer Context</PageHeader.Title>
+        </PageHeader.TitleArea>
+        <PageHeader.TrailingVisual>
+          <Label>{customer.name}</Label>
+        </PageHeader.TrailingVisual>
+      </PageHeader>
       <Box
         borderColor="border.default"
         borderWidth={1}
@@ -72,9 +87,14 @@ const Sources = () => {
       >
         <code>{JSON.stringify(customer, null, 2)}</code>
       </Box>
-
-      <Pagehead sx={pageHeadSx}>Company Context (Products)</Pagehead>
-
+      <PageHeader sx={sx}>
+        <PageHeader.TitleArea>
+          <PageHeader.Title>Company Context</PageHeader.Title>
+        </PageHeader.TitleArea>
+        <PageHeader.TrailingVisual>
+          <Label>{selectedDoc.length == 0 ? "None Selected" : selectedDoc}</Label>
+        </PageHeader.TrailingVisual>
+      </PageHeader>
       <MarkdownEditor
         viewMode={"edit"}
         fullHeight={true}

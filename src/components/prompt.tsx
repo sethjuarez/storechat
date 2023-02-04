@@ -1,30 +1,19 @@
 import { Box } from "@primer/react";
-import { useRemark } from "react-remark";
-import remarkGemoji from "remark-gemoji";
-import { useEffect } from "react";
+import { PageHeader } from "@primer/react/drafts";
 
 type Props = {
   prompt: string;
 };
 
 const Prompt = ({ prompt }: Props) => {
-  const [reactContent, setMarkdownSource] = useRemark({
-    //@ts-ignore
-    remarkPlugins: [remarkGemoji],
-    remarkToRehypeOptions: { allowDangerousHtml: true },
-    rehypeReactOptions: {
-      components: {
-        a: (props: any) => <a target="_blank" {...props} />,
-      },
-    },
-  });
-
-  useEffect(() => {
-    setMarkdownSource(prompt);
-  }, [prompt, setMarkdownSource]);
 
   return (
     <Box className={"promptContainer"}>
+      <PageHeader>
+        <PageHeader.TitleArea>
+          <PageHeader.Title>Generated Prompt</PageHeader.Title>
+        </PageHeader.TitleArea>
+      </PageHeader>
       <code className={"promptText"}>{prompt}</code>
     </Box>
   );

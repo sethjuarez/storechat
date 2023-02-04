@@ -66,6 +66,7 @@ export interface ResponseTelemetry {
 
 export interface Prompt {
   template: string;
+  name: string;
   created: string;
   modified: string;
 }

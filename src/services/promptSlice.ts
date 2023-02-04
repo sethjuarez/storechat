@@ -11,6 +11,7 @@ const initialState: PromptState = {
   selected: 0,
   prompts: [
     {
+      name: "Default Prompt",
       template: `<Instructions>Please answer the question briefly, succinctly and in a personable manner using nice markdown as the Assistant. End your answer with a lot of fun emojis.
 <Context>Use this context in the response: customer name: {name}, customer age: {age}, customer timezone: {location}.
 <Documentation>{documentation}

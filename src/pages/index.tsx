@@ -3,9 +3,9 @@ import { PromptService } from "@services";
 import { useSession } from "next-auth/react";
 import { addResponse } from "@services/chatSlice";
 import { Box, Text, TabNav } from "@primer/react";
-import { MouseEventHandler, useState } from "react";
+import { useState } from "react";
 import { currentCustomer } from "@services/customerSlice";
-import { AppHeader, Chat, Sources, Prompt } from "@components";
+import { AppHeader, Chat, Sources, Prompt, Content } from "@components";
 import { useAppDispatch, useAppSelector } from "@services/hooks";
 import { currentPrompt, setCurrentPrompt } from "@services/promptSlice";
 import { currentDocument, fetchDocument } from "@services/documentSlice";
@@ -25,9 +25,12 @@ const Home = () => {
     name: data?.user?.name || "",
     email: data?.user?.email || "",
   };
-  const [sourcesOpen, setSourcesOpen] = useState(true);
   const [prompt, setPrompt] = useState("");
+  const [currentTab, setCurrentTab] = useState<
+    "prompt" | "sources" | "content"
+  >("sources");
 
+  // events
   const sendPrompt = async (message: string): Promise<void> => {
     const { contents } = await dispatch(fetchDocument(message)).unwrap();
     const itemDoc = contents.length == 0 ? document : contents;
@@ -46,15 +49,10 @@ const Home = () => {
     dispatch(addResponse(response));
   };
 
-  const toggleTabs: MouseEventHandler<HTMLAnchorElement> = (e) => {
-    e.preventDefault();
-    setSourcesOpen(e.currentTarget.text === "Sources");
-  };
-
   return (
     <>
       <Head>
-        <title>Contoso Market ChatGPT</title>
+        <title>GreenLife - ChatGPT</title>
       </Head>
       <Box className="main">
         <Box className="header">
@@ -65,13 +63,40 @@ const Home = () => {
         </Box>
         <Box className="prompt">
           <TabNav aria-label="Main">
-            <TabNav.Link href="#" selected={sourcesOpen} onClick={toggleTabs}>
+            <TabNav.Link
+              href="#"
+              selected={currentTab === "sources"}
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentTab("sources");
+              }}
+            >
               Sources
             </TabNav.Link>
-            <TabNav.Link href="#" selected={!sourcesOpen} onClick={toggleTabs}>
+            <TabNav.Link
+              href="#"
+              selected={currentTab === "prompt"}
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentTab("prompt");
+              }}
+            >
               Prompt
             </TabNav.Link>
+            {/* 
+            <TabNav.Link
+              href="#"
+              selected={currentTab === "content"}
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentTab("content");
+              }}
+            >
+              Content
+            </TabNav.Link>
+            */}
           </TabNav>
+
           <Box
             borderColor="border.default"
             borderWidth={1}
@@ -82,10 +107,9 @@ const Home = () => {
             boxShadow="shadow.medium"
             className="tabarea"
           >
-            {sourcesOpen && (
-              <Sources />
-            )}
-            {!sourcesOpen && <Prompt prompt={prompt} />}
+            {currentTab === "sources" && <Sources />}
+            {currentTab === "prompt" && <Prompt prompt={prompt} />}
+            {/*currentTab === "content" && <Content />*/}
           </Box>
         </Box>
         <Box className="footer" bg="neutral.emphasisPlus">

@@ -3,8 +3,6 @@
   TurnRequest,
   Customer,
   Turn,
-  ExtendedTurnResponse,
-  User,
 } from "@types";
 import { IAppInsights } from "@microsoft/applicationinsights-common";
 
@@ -29,39 +27,6 @@ export class JsonService<Request, Response> {
     const response = await fetch(this._url, options);
     const typed: Response = await response.json();
     return typed;
-  };
-}
-
-export class DocumentService {
-  private _sources: { [id: string]: string };
-  constructor() {
-    // TODO: perhaps abstract sources to store
-    this._sources = {
-      food: "/data/NaturesNourishment.txt",
-      clean: "/data/EcoClean.txt",
-    };
-  }
-
-  search = async (prompt: string): Promise<string> => {
-    let doc = "";
-    Object.entries(this._sources).forEach(([key, value]) => {
-      console.log(key, value, prompt);
-      if (prompt.toLowerCase().includes(key.toLowerCase())) doc = value;
-    });
-
-    if (doc.length > 0) {
-      const documentation = await fetch(doc, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/text",
-        },
-      });
-
-      const contents = await documentation.text();
-      return contents;
-    }
-
-    return "";
   };
 }
 
@@ -143,9 +108,12 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
     // get response
     const response = await this.call(request);
     // clean it up
-    const reply = response.choices[0].text
+    let reply = response.choices[0].text
       .split(this._customer.name + ": ")[0]
       .trim();
+
+    // odd character creeping in
+    reply = reply.split("§")[0].trim();
 
     this._insights.trackEvent(
       { name: "response" },
@@ -159,4 +127,13 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
     
     return reply;
   };
+}
+
+
+export const matchStrings = (a: string, b: string, overlap: number): boolean => {
+  const aWords = a.split(" ");
+  const bWords = b.split(" ");
+  const aLength = aWords.length;
+  const bLength = bWords.length;
+  return true;
 }

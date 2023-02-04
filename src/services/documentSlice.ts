@@ -1,17 +1,27 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 
+interface Document {
+  file: string;
+  keywords: string[];
+  isDefault: boolean;
+}
+
 interface DocumentState {
-  documents: { [id: string]: string };
+  documents1: { [id: string]: string };
   document: string;
   current: string;
 }
 
 const initialState: DocumentState = {
   document: "",
-  documents: {
+  documents1: {
+    default: "/data/GreenLife.txt",
     food: "/data/NaturesNourishment.txt",
     clean: "/data/EcoClean.txt",
+    nature: "/data/NaturesNourishment.txt",
+    eco: "/data/EcoClean.txt",
+    nourish: "/data/NaturesNourishment.txt",
   },
   current: "",
 };
@@ -23,6 +33,10 @@ const documentSlice = createSlice({
     setDocument: (state, action: PayloadAction<string>) => {
       state.document = action.payload;
     },
+    resetDocument: state => {
+      state.current = "";
+      state.document = "";
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -51,6 +65,13 @@ export const fetchDocument = createAsyncThunk(
       if (message.toLowerCase().includes(key.toLowerCase())) doc = value;
     });
 
+    // if nothing's been set, lets add
+    // generic company context as a default
+    if (doc.length === 0 && file.length === 0) {
+      doc = docs["default"];
+    }
+
+    // get appropriate file
     if (doc.length > 0 && doc != file) {
       const documentation = await fetch(doc, {
         method: "GET",
@@ -64,11 +85,11 @@ export const fetchDocument = createAsyncThunk(
     } else {
       return { file: file, contents: "" };
     }
-  },
+  }
 );
 
-export const { setDocument } = documentSlice.actions;
+export const { setDocument, resetDocument } = documentSlice.actions;
 export const currentDocument = (state: RootState) => state.documents.document;
-export const documents = (state: RootState) => state.documents.documents;
+export const documents = (state: RootState) => state.documents.documents1;
 export const currentFile = (state: RootState) => state.documents.current;
 export default documentSlice.reducer;
