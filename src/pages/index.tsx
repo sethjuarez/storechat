@@ -45,7 +45,7 @@ const Home = () => {
   const [prompt, setPrompt] = useState("");
   const [currentTab, setCurrentTab] = useState<
     "prompt" | "sources" | "content"
-  >("sources");
+  >("content");
 
   // events
   const sendPrompt = async (message: string): Promise<void> => {

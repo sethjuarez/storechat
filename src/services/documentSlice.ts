@@ -8,7 +8,6 @@ interface Document {
 }
 
 interface DocumentState {
-  documents1: { [id: string]: string };
   document: string;
   current: string;
   documents: Document[];
@@ -16,14 +15,6 @@ interface DocumentState {
 
 const initialState: DocumentState = {
   document: "",
-  documents1: {
-    default: "/data/BestForYou.txt",
-    food: "/data/NaturesNourishment.txt",
-    clean: "/data/EcoClean.txt",
-    nature: "/data/NaturesNourishment.txt",
-    eco: "/data/EcoClean.txt",
-    nourish: "/data/NaturesNourishment.txt",
-  },
   documents: [
     { file: "/data/BestForYou.txt", keywords: [], isDefault: true },
     {
@@ -154,8 +145,6 @@ export const {
   setDefault,
 } = documentSlice.actions;
 export const currentDocument = (state: RootState) => state.documents.document;
-export const docs = (state: RootState) => state.documents.documents;
-export const documents = (state: RootState) => state.documents.documents1;
 export const selectDocuments = (state: RootState) => state.documents.documents;
 export const currentFile = (state: RootState) => state.documents.current;
 export default documentSlice.reducer;

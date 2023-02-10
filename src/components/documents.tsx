@@ -4,11 +4,19 @@ import {
   Checkbox,
   Text,
   Label,
+  Tooltip,
   IconButton,
 } from "@primer/react";
 import { PageHeader, Dialog } from "@primer/react/drafts";
 import { useAppDispatch, useAppSelector } from "@services/hooks";
-import { PlusIcon, XIcon } from "@primer/octicons-react";
+import {
+  PlusIcon,
+  XIcon,
+  CheckCircleIcon,
+  TrashIcon,
+  ShareIcon,
+  PlusCircleIcon,
+} from "@primer/octicons-react";
 import {
   selectDocuments,
   addKeyword,
@@ -16,15 +24,18 @@ import {
   setDefault,
 } from "@services/documentSlice";
 import { useTheme } from "@primer/react";
-import { MouseEventHandler, ReactNode, useState } from "react";
+import { MouseEventHandler, ReactNode, useRef, useState } from "react";
 
 const Documents = () => {
   const { theme } = useTheme();
+  const user = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
   const documents = useAppSelector(selectDocuments);
   const [keyword, setKeyword] = useState<string[]>(
     new Array(documents.length).fill("")
   );
+
+  const fileInputRef = useRef(null);
 
   const updateKeyword = (index: number, value: string) => {
     setKeyword([
@@ -57,14 +68,39 @@ const Documents = () => {
     </Dialog>
   );
 
+  const handleAddFile = () => {
+    if (fileInputRef.current) {
+      (fileInputRef.current as any).click();
+    }
+  };
+
+  const addFile = (files: FileList | null) => {
+    if (files && files?.length > 0) {
+      console.log(files);
+    }
+  };
+
   return (
     <Box>
       <PageHeader sx={{ flexDirection: "row" }}>
         <PageHeader.TitleArea>
           <PageHeader.Title>Documents</PageHeader.Title>
+          <PageHeader.Actions>
+            <Tooltip aria-label={`Save Changes (only for ${user.name})`}>
+              <IconButton aria-label="share" size="small" icon={ShareIcon} />
+            </Tooltip>
+            <Tooltip aria-label={"Add a new document"}>
+              <IconButton
+                aria-label="new"
+                size="small"
+                icon={PlusCircleIcon}
+                onClick={handleAddFile}
+              />
+            </Tooltip>
+          </PageHeader.Actions>
         </PageHeader.TitleArea>
       </PageHeader>
-      <Box>
+      <Box sx={{ marginTop: 3 }}>
         <table className="documentList">
           <thead>
             <tr>
@@ -72,6 +108,7 @@ const Documents = () => {
               <th>New Keyword</th>
               <th>Document</th>
               <th>Default</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -142,10 +179,26 @@ const Documents = () => {
                     onClick={defaultChecked(index)}
                   />
                 </td>
+                <td>
+                  <IconButton
+                    icon={TrashIcon}
+                    aria-label="Remove"
+                    onClick={() => alert("Not implemented yet")}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+        <Box sx={{ display: "none" }}>
+          <input
+            ref={fileInputRef}
+            title="file"
+            type="file"
+            id="file"
+            onChange={(e) => addFile(e.target.files)}
+          />
+        </Box>
       </Box>
     </Box>
   );
