@@ -11,18 +11,10 @@ import { useAppDispatch, useAppSelector } from "@services/hooks";
 import { currentCustomer } from "@services/customerSlice";
 import { currentPrompt, setCurrentPrompt } from "@services/promptSlice";
 
-// dynamic loader to force client-side only
-const MarkdownEditor = dynamic(
-  () => import("@primer/react/drafts").then((mod) => mod.MarkdownEditor),
-  {
-    ssr: false,
-  }
-);
-
 const Sources = () => {
   const dispatch = useAppDispatch();
   const document = useAppSelector(currentDocument);
-  const selectedDoc = useAppSelector((state) => state.documents.current)
+  const selectedDoc = useAppSelector((state) => state.documents.current);
   const customer = useAppSelector(currentCustomer);
   const basePrompt = useAppSelector(currentPrompt);
 
@@ -37,11 +29,6 @@ const Sources = () => {
     },
   });
 
-  const renderMarkdown = async (markdown: string) =>
-    new Promise<string>((resolve, _) => {
-      resolve(ReactDOMServer.renderToString(productMd || <></>));
-    });
-
   const handleChange: ChangeEventHandler<HTMLTextAreaElement> = (event) => {
     dispatch(setCurrentPrompt(event.target.value));
   };
@@ -51,7 +38,7 @@ const Sources = () => {
   }, [document, setProductMd]);
 
   const sx = { flexDirection: "row" };
-  
+
   return (
     <Box className="source">
       <PageHeader sx={sx}>
@@ -82,7 +69,6 @@ const Sources = () => {
         borderStyle="solid"
         borderRadius={5}
         boxShadow="shadow.small"
-        marginLeft={2}
         p={3}
       >
         <code>{JSON.stringify(customer, null, 2)}</code>
@@ -92,18 +78,25 @@ const Sources = () => {
           <PageHeader.Title>Company Context</PageHeader.Title>
         </PageHeader.TitleArea>
         <PageHeader.TrailingVisual>
-          <Label>{selectedDoc.length == 0 ? "None Selected" : selectedDoc}</Label>
+          <Label>
+            {selectedDoc.length == 0 ? "None Selected" : selectedDoc}
+          </Label>
         </PageHeader.TrailingVisual>
       </PageHeader>
-      <MarkdownEditor
-        viewMode={"edit"}
-        fullHeight={true}
-        value={document}
-        onChange={(md) => dispatch(setDocument(md))}
-        onRenderPreview={renderMarkdown}
+      <Box
+        className="documentPreview"
+        sx={{
+          borderColor: "border.default",
+          borderWidth: 1,
+          borderStyle: "solid",
+          borderRadius: 5,
+          boxShadow: "shadow.small",
+          p: 3,
+          flex: "auto",
+        }}
       >
-        <></>
-      </MarkdownEditor>
+        {productMd}
+      </Box>
     </Box>
   );
 };

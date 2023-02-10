@@ -3,7 +3,9 @@ Nature's Nourishment is a line of organic foods that are free from artificial pr
 
 # Price
 Nature's Nourishment Organic Apples: $3.99/pound
+
 Nature's Nourishment Organic Spinach: $2.99/pound
+
 Nature's Nourishment Organic Chicken Breast: $9.99/pound
 
 # Reviews

@@ -3,6 +3,7 @@
   TurnRequest,
   Customer,
   Turn,
+  User
 } from "@types";
 import { IAppInsights } from "@microsoft/applicationinsights-common";
 
@@ -41,7 +42,7 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
     template: string,
     document: string,
     customer: Customer,
-    user: { name: string; email: string },
+    user: User,
     insights: IAppInsights
   ) {
     super("/api/chat");
@@ -50,7 +51,8 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
     this._customer = customer;
     this._telemetry = {
       host: window ? window.location.hostname : "unknown",
-      ...user,
+      name: user.name,
+      email: user.email,
     };
     this._insights = insights;
   }
@@ -90,6 +92,8 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
       max_tokens: 500,
       stream: false,
     };
+
+    
 
     this._insights.trackEvent(
       { name: "request" },

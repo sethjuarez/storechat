@@ -42,6 +42,7 @@ body {
       "footer";
     gap: 10px;
     margin: 0px;
+    flex-shrink: 1;
   }
 
   .chat {
@@ -55,7 +56,6 @@ body {
   .prompt {
     grid-area: query;
     height: calc(100vh - 64px - 54px - 40px);
-    display: flex;
     flex-direction: column;
     margin-right: 8px;
     margin-left: 8px;
@@ -126,20 +126,8 @@ body {
 .source {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  height: calc(100% - 16px);
-}
-
-fieldset {
-  display: flex;
-  margin-inline-start: 0px;
-  margin-inline-end: 0px;
-  padding-block-start: 0.35em;
-  padding-inline-start: 0px;
-  padding-inline-end: 0px;
-  padding-block-end: 0px;
-  flex-grow: 1;
-  flex-shrink: 1;
+  aligb-items: stretch;
+  gap: 10px;
 }
 
 p {
@@ -153,4 +141,50 @@ p {
 
 .promptText {
   white-space: pre-line;
+}
+
+.promptEditor {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+a.promptTabs:hover {
+  cursor: pointer;
+}
+
+.documentList {
+  width: 100%;
+  padding: 0px;
+  border-collapse: collapse;
+  border-style: hidden;
+}
+
+.documentList td, .documentList th {
+  padding: 8px;
+}
+
+.documentList tr:nth-child(2n+2) {
+  background: rgba(234,238,242,0.5);
+}
+
+.documentList th {
+  background: #6e7781;
+  color: white;
+}
+
+.documentPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  height: calc(100vh - 660px);
+  overflow-y: auto;
+}
+
+h1 {
+  font-size: 1.25em;
+  font-weight: bold;
+  margin: 0;
 }

@@ -5,8 +5,11 @@ EcoClean is a line of household cleaning products that are safe for both you and
 # Price
 
 EcoClean All-Purpose Cleaner: $6.99
+
 EcoClean Dish Soap: $3.99
+
 EcoClean Laundry Detergent: $9.99
+
 
 # Reviews:
 "I love EcoClean! I have been using their all-purpose cleaner for a few months now and it works just as well as the chemical-laden cleaners I used to use. Plus, it's better for the environment and my family." - Sandra
