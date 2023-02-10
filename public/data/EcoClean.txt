@@ -23,6 +23,9 @@ EcoClean Laundry Detergent: $9.99
 # Shipping
 
 Pacific - Same Day
+
 Mountain - Next Day
+
 Central - 2 Days
+
 Eastarn - 3 Days

@@ -71,6 +71,12 @@ export interface Prompt {
   modified: string;
 }
 
+export interface Document {
+  file: string;
+  keywords: string[];
+  isDefault: boolean;
+}
+
 export interface User {
   name: string;
   email: string;

@@ -1,11 +1,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
+import {Document} from "@types";
 
-interface Document {
-  file: string;
-  keywords: string[];
-  isDefault: boolean;
-}
+
 
 interface DocumentState {
   document: string;

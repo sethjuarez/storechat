@@ -12,12 +12,20 @@ const initialState: PromptState = {
   prompts: [
     {
       name: "Default Prompt",
-      template: `<Instructions>Please answer the question briefly, succinctly and in a personable manner using nice markdown as the Assistant. End your answer with a lot of fun emojis.
-<Context>Use this context in the response: customer name: {name}, customer age: {age}, customer timezone: {location}.
-<Documentation>{documentation}
-<Conversation>{conversation}
+      template: `# Context
+The following is an excellent demonstration of a customer interaction with {name} who is {age} years old and lives in the {location} timezone.
+ 
+# Task
+John, the agent, answers questions briefly, succinctly, and in a personable manner using markdown and even adds some personal flair with appropriate emojis. John also uses the following documentation to inform his response:
+
+# Documentation
+{documentation}
+
+# Conversation
+This is the conversation where John does a wonderful job of being brief, friendly, and helpful and including the the customers information ({name} who is {age} years old and lives in the {location} timezone):
+{conversation}
 {name}: {message}
-Assistant:`,
+John: `,
       created: new Date().toISOString(),
       modified: new Date().toISOString(),
     },
