@@ -7,12 +7,11 @@ import { useEffect, useState } from "react";
 import { currentCustomer } from "@services/customerSlice";
 import { AppHeader, Chat, Sources, Prompt, Content } from "@components";
 import { useAppDispatch, useAppSelector } from "@services/hooks";
-import { currentPrompt, setCurrentPrompt } from "@services/promptSlice";
+import { currentPrompt, fetchPromptState } from "@services/promptSlice";
 import {
   currentDocument,
   fetchDocumentByMessage,
 } from "@services/documentSlice";
-import { User } from "@types";
 import { setUser } from "@services/userSlice";
 import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 
@@ -24,6 +23,14 @@ const Home = () => {
   const chat = useAppSelector((state) => state.chat);
   const document = useAppSelector(currentDocument);
   const user = useAppSelector((state) => state.user);
+
+  const promptStatus = useAppSelector((state) => state.prompts.status);
+
+  useEffect(() => {
+    if (promptStatus === "idle") {
+      dispatch(fetchPromptState());
+    }
+  }, [promptStatus, dispatch]);
 
   // State
   const { data, status } = useSession();
@@ -41,6 +48,7 @@ const Home = () => {
       dispatch(setUser(user));
     }
   });
+  
 
   const [prompt, setPrompt] = useState("");
   const [currentTab, setCurrentTab] = useState<

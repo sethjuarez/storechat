@@ -13,16 +13,18 @@ interface DocumentState {
 const initialState: DocumentState = {
   document: "",
   documents: [
-    { file: "/data/BestForYou.txt", keywords: [], isDefault: true },
+    { file: "/data/BestForYou.txt", keywords: [], isDefault: true, ignore: false },
     {
       file: "/data/NaturesNourishment.txt",
       keywords: ["food", "nature", "nourish"],
       isDefault: false,
+      ignore: false,
     },
     {
       file: "/data/EcoClean.txt",
       keywords: ["clean", "eco"],
       isDefault: false,
+      ignore: false,
     },
   ],
   current: "",
@@ -61,6 +63,10 @@ const documentSlice = createSlice({
       state.documents.forEach((d) => (d.isDefault = false));
       state.documents[i].isDefault = true;
     },
+    toggleIgnore: (state, action: PayloadAction<number>) => {
+      const i = action.payload;
+      state.documents[i].ignore = !state.documents[i].ignore;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -87,7 +93,7 @@ export const fetchDocumentByMessage = createAsyncThunk(
 
     let doc = "";
     docs
-      .filter((d) => d.keywords.length > 0)
+      .filter((d) => d.keywords.length > 0 && !d.ignore)
       .forEach((k) => {
         k.keywords.forEach((w) => {
           if (message.toLowerCase().includes(w.toLowerCase())) {
@@ -140,6 +146,7 @@ export const {
   addKeyword,
   removeKeyword,
   setDefault,
+  toggleIgnore,
 } = documentSlice.actions;
 export const currentDocument = (state: RootState) => state.documents.document;
 export const selectDocuments = (state: RootState) => state.documents.documents;

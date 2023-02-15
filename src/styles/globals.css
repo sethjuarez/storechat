@@ -55,7 +55,7 @@ body {
 
   .prompt {
     grid-area: query;
-    height: calc(100vh - 64px - 54px - 40px);
+    height: auto;
     flex-direction: column;
     margin-right: 8px;
     margin-left: 8px;
@@ -162,12 +162,13 @@ a.promptTabs:hover {
   border-style: hidden;
 }
 
-.documentList td, .documentList th {
+.documentList td,
+.documentList th {
   padding: 8px;
 }
 
-.documentList tr:nth-child(2n+2) {
-  background: rgba(234,238,242,0.5);
+.documentList tr:nth-child(2n + 2) {
+  background: rgba(234, 238, 242, 0.5);
 }
 
 .documentList th {
@@ -187,4 +188,16 @@ h1 {
   font-size: 1.25em;
   font-weight: bold;
   margin: 0;
+}
+
+.docsContainer {
+  width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 760px) {
+  .docsContainer {
+    width: calc(100vw - 64px);
+    overflow-x: auto;
+  }
 }

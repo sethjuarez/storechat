@@ -22,6 +22,7 @@ import {
   addKeyword,
   removeKeyword,
   setDefault,
+  toggleIgnore,
 } from "@services/documentSlice";
 import { useTheme } from "@primer/react";
 import { MouseEventHandler, ReactNode, useRef, useState } from "react";
@@ -55,6 +56,12 @@ const Documents = () => {
     index: number
   ) => MouseEventHandler<HTMLInputElement> = (index) => (event) => {
     dispatch(setDefault(index));
+  };
+
+  const ignoreChecked: (
+    index: number
+  ) => MouseEventHandler<HTMLInputElement> = (index) => (event) => {
+    dispatch(toggleIgnore(index));
   };
 
   const [isOpen, setIsOpen] = useState(false);
@@ -97,16 +104,22 @@ const Documents = () => {
                 onClick={handleAddFile}
               />
             </Tooltip>
+            <Tooltip aria-label="Can modify keywords but persistence is not complete." sx={{
+              cursor: "pointer",
+            }}>
+              <Label variant="attention">Under Construction</Label>
+            </Tooltip>
           </PageHeader.Actions>
         </PageHeader.TitleArea>
       </PageHeader>
-      <Box sx={{ marginTop: 3 }}>
+      <Box sx={{ marginTop: 3 }} className="docsContainer">
         <table className="documentList">
           <thead>
             <tr>
               <th>Current Keywords</th>
               <th>New Keyword</th>
               <th>Document</th>
+              <th>Ignore</th>
               <th>Default</th>
               <th></th>
             </tr>
@@ -163,11 +176,6 @@ const Documents = () => {
                         e.code === "Enter" ? addKey(index) : null
                       }
                     />
-                    <IconButton
-                      icon={PlusIcon}
-                      aria-label="Add"
-                      onClick={() => addKey(index)}
-                    />
                   </Box>
                 </td>
                 <td>
@@ -175,10 +183,17 @@ const Documents = () => {
                 </td>
                 <td align="center">
                   <Checkbox
+                    checked={document.ignore}
+                    onClick={ignoreChecked(index)}
+                  />
+                </td>
+                <td align="center">
+                  <Checkbox
                     checked={document.isDefault}
                     onClick={defaultChecked(index)}
                   />
                 </td>
+
                 <td>
                   <IconButton
                     icon={TrashIcon}

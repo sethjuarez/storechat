@@ -17,7 +17,7 @@ export interface CosmosContext {
   database: string;
 }
 
-export abstract class CosmosAccess<T extends Record> {
+export abstract class CosmosDataService<T extends Record> {
   protected context: CosmosContext;
   protected client: CosmosClient;
   protected databaseId: string;
@@ -43,9 +43,15 @@ export abstract class CosmosAccess<T extends Record> {
     this.containerId = containerId;
     this.listQuery = listQuery;
     this.partitionKey = partitionKey;
+    // local mode
+    if (this.context.endpoint.includes("localhost")) {
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+    }
   }
 
   async init() {
+    
+    
     const dbResponse = await this.client.databases.createIfNotExists({
       id: this.databaseId,
     });
@@ -95,7 +101,7 @@ export interface PromptRecord extends Record {
   selected: number;
 }
 
-export class PromptData extends CosmosAccess<PromptRecord> {
+export class PromptDataService extends CosmosDataService<PromptRecord> {
   constructor(context: CosmosContext) {
     super(context, "prompt", "SELECT * FROM c WHERE c.id = @id", "/id");
   }
@@ -106,7 +112,7 @@ export interface DocumentRecord extends Record {
   documents: Document[];
 }
 
-export class DocumentData extends CosmosAccess<DocumentRecord> {
+export class DocumentDataService extends CosmosDataService<DocumentRecord> {
   constructor(context: CosmosContext) {
     super(context, "document", "SELECT * FROM c WHERE c.id = @id", "/id");
   }

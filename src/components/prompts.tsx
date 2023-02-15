@@ -5,6 +5,7 @@ import {
   IconButton,
   Tooltip,
   UnderlineNav,
+  Label,
 } from "@primer/react";
 import { PageHeader, Dialog } from "@primer/react/drafts";
 import {
@@ -12,6 +13,7 @@ import {
   ChangeEventHandler,
   MouseEventHandler,
   ReactNode,
+  useEffect,
 } from "react";
 import {
   CheckCircleIcon,
@@ -28,6 +30,8 @@ import {
   setPromptTemplate,
   addItem,
   deleteItem,
+  savePromptState,
+  fetchPromptState
 } from "@services/promptSlice";
 
 const Prompts = () => {
@@ -53,7 +57,7 @@ const Prompts = () => {
   };
 
   const deletePrompt: (index: number) => MouseEventHandler<HTMLButtonElement> =
-    (index) => (event) => {
+    (index) => () => {
       if (selected == index) dispatch(setIndex(index - 1));
       setTabIndex(index - 1);
       dispatch(deleteItem(index));
@@ -69,6 +73,10 @@ const Prompts = () => {
 
   const closeDialog = () => {
     setIsOpen(false);
+  };
+
+  const savePrompts = () => {
+    dispatch(savePromptState());
   };
 
   const [isOpen, setIsOpen] = useState(false);
@@ -108,7 +116,12 @@ const Prompts = () => {
           <PageHeader.Title>Prompts</PageHeader.Title>
           <PageHeader.Actions>
             <Tooltip aria-label={`Save Changes (only for ${user.name})`}>
-              <IconButton aria-label="share" size="small" icon={ShareIcon} />
+              <IconButton
+                aria-label="share"
+                size="small"
+                icon={ShareIcon}
+                onClick={savePrompts}
+              />
             </Tooltip>
             <Tooltip
               aria-label={

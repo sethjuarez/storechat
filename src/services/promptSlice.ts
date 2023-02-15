@@ -1,18 +1,10 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Prompt } from "@types";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Prompt, PromptState, User } from "@types";
 import { RootState } from "./store";
 
-interface PromptState {
-  prompts: Prompt[];
-  selected: number;
-}
-
-const initialState: PromptState = {
-  selected: 0,
-  prompts: [
-    {
-      name: "Default Prompt",
-      template: `# Context
+const initialPrompt: Prompt = {
+  name: "Default Prompt",
+  template: `# Context
 The following is an excellent demonstration of a customer interaction with {name} who is {age} years old and lives in the {location} timezone.
  
 # Task
@@ -26,10 +18,16 @@ This is the conversation where John does a wonderful job of being brief, friendl
 {conversation}
 {name}: {message}
 John: `,
-      created: new Date().toISOString(),
-      modified: new Date().toISOString(),
-    },
-  ],
+  created: new Date().toISOString(),
+  modified: new Date().toISOString(),
+};
+
+const initialState: PromptState & {
+  status: "idle" | "loading" | "succeeded" | "failed";
+} = {
+  status: "idle",
+  selected: 0,
+  prompts: [initialPrompt],
 };
 
 const promptSlice = createSlice({
@@ -92,7 +90,53 @@ const promptSlice = createSlice({
       ];
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchPromptState.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchPromptState.fulfilled, (state, action) => {
+        const { selected, prompts } = action.payload;
+        if (prompts.length > 0) {
+          state.selected = selected;
+          state.prompts = prompts;
+        } else {
+          // load some default state?
+        }
+
+        state.status = "succeeded";
+      })
+      .addCase(fetchPromptState.rejected, (state) => {
+        state.status = "failed";
+      });
+  },
 });
+
+export const fetchPromptState = createAsyncThunk(
+  "prompt/fetchPromptState",
+  async () => {
+    const result = await fetch("/api/prompt");
+    const json = await result.json();
+    return JSON.parse(json);
+  }
+);
+
+export const savePromptState = createAsyncThunk(
+  "prompt/savePromptState",
+  async (_, { getState }) => {
+    const { status, ...prompts } = (getState() as RootState).prompts;
+    const result = await fetch("/api/prompt", {
+      method: "POST",
+      body: JSON.stringify(prompts),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const json: PromptState = await result.json();
+    return json;
+  }
+);
 
 export const {
   addPrompt,

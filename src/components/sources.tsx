@@ -1,23 +1,25 @@
-import dynamic from "next/dynamic";
-import { Box, Label, Textarea, FormControl, Autocomplete } from "@primer/react";
-import { ShareIcon } from "@primer/octicons-react";
+import { Box, Label, Textarea, Spinner } from "@primer/react";
+import { ShareIcon,  } from "@primer/octicons-react";
 import { PageHeader } from "@primer/react/drafts";
 import { useRemark } from "react-remark";
 import remarkGemoji from "remark-gemoji";
-import { useEffect, ChangeEventHandler } from "react";
-import ReactDOMServer from "react-dom/server";
+import { useEffect, ChangeEventHandler, useState } from "react";
 import { currentDocument, setDocument } from "@services/documentSlice";
 import { useAppDispatch, useAppSelector } from "@services/hooks";
 import { currentCustomer } from "@services/customerSlice";
-import { currentPrompt, setCurrentPrompt } from "@services/promptSlice";
+import {
+  currentPrompt,
+  setCurrentPrompt,
+} from "@services/promptSlice";
 
 const Sources = () => {
   const dispatch = useAppDispatch();
   const document = useAppSelector(currentDocument);
   const selectedDoc = useAppSelector((state) => state.documents.current);
   const customer = useAppSelector(currentCustomer);
-  const basePrompt = useAppSelector(currentPrompt);
+  const promptStatus = useAppSelector((state) => state.prompts.status);
 
+  const basePrompt = useAppSelector(currentPrompt);
   const [productMd, setProductMd] = useRemark({
     //@ts-ignore
     remarkPlugins: [remarkGemoji],
@@ -46,13 +48,19 @@ const Sources = () => {
           <PageHeader.Title>Prompt Template</PageHeader.Title>
         </PageHeader.TitleArea>
         <PageHeader.TrailingVisual>
-          <Label>{basePrompt.name}</Label>
+          <Label>
+            {promptStatus !== "succeeded" ? (
+              <Spinner size="small" />
+            ) : (
+              basePrompt.name
+            )}
+          </Label>
         </PageHeader.TrailingVisual>
       </PageHeader>
       <Textarea
         placeholder="Enter a description"
         onChange={handleChange}
-        value={basePrompt.template}
+        value={promptStatus !== "succeeded" ? "" : basePrompt.template}
         rows={8}
       />
       <PageHeader sx={sx}>
