@@ -40,6 +40,7 @@ const Prompts = () => {
   const selected = useAppSelector(currentIndex);
   const user = useAppSelector((state) => state.user);
   const [tabIndex, setTabIndex] = useState(0);
+  const [saving, setSaving] = useState(false);
 
   const editTemplate: (
     index: number
@@ -75,8 +76,10 @@ const Prompts = () => {
     setIsOpen(false);
   };
 
-  const savePrompts = () => {
-    dispatch(savePromptState());
+  const savePrompts = async () => {
+    setSaving(true);
+    await dispatch(savePromptState());
+    setSaving(false);
   };
 
   const [isOpen, setIsOpen] = useState(false);
@@ -117,6 +120,7 @@ const Prompts = () => {
           <PageHeader.Actions>
             <Tooltip aria-label={`Save Changes (only for ${user.name})`}>
               <IconButton
+                disabled={saving}
                 aria-label="share"
                 size="small"
                 icon={ShareIcon}

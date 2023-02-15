@@ -16,6 +16,7 @@ const handler = async (
     res.status(401).json("Not Authorized");
   }
 
+  /*
   if (IS_DEV) {
     const r: TurnResponse = {
       choices: [{
@@ -37,6 +38,7 @@ const handler = async (
     res.status(200).json(r);
     return;
   }
+  */
 
   const request = req.body as TurnRequest;
   const options = {
