@@ -71,6 +71,18 @@ export interface Prompt {
   modified: string;
 }
 
+export interface PromptState {
+  prompts: Prompt[];
+  selected: number;
+}
+
+export interface Document {
+  file: string;
+  keywords: string[];
+  ignore: boolean;
+  isDefault: boolean;
+}
+
 export interface User {
   name: string;
   email: string;

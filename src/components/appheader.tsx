@@ -49,7 +49,7 @@ const AppHeader = () => {
             />
           </svg>
           &nbsp;
-          <span>GreenLife Chat</span>
+          <span>Best For You Organics - Chat</span>
         </Header.Link>
       </Header.Item>
       <Header.Item>

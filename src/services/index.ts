@@ -3,6 +3,7 @@
   TurnRequest,
   Customer,
   Turn,
+  User
 } from "@types";
 import { IAppInsights } from "@microsoft/applicationinsights-common";
 
@@ -41,7 +42,7 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
     template: string,
     document: string,
     customer: Customer,
-    user: { name: string; email: string },
+    user: User,
     insights: IAppInsights
   ) {
     super("/api/chat");
@@ -50,7 +51,8 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
     this._customer = customer;
     this._telemetry = {
       host: window ? window.location.hostname : "unknown",
-      ...user,
+      name: user.name,
+      email: user.email,
     };
     this._insights = insights;
   }
@@ -74,12 +76,12 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
           `${acc}${
             cur.type === "user"
               ? this._customer.name + ": " + cur.message + "\n"
-              : "Assistant: " + cur.message + "\n"
+              : "John: " + cur.message + "\n"
           }`,
         ""
       );
 
-    return prompt.replace("{conversation}", conversation);
+    return prompt.replace("{conversation}", conversation.trim());
   };
 
   createRequest = (message: string, chat: Turn[]): TurnRequest => {
@@ -90,6 +92,8 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
       max_tokens: 500,
       stream: false,
     };
+
+    
 
     this._insights.trackEvent(
       { name: "request" },
@@ -110,6 +114,8 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
     // clean it up
     let reply = response.choices[0].text
       .split(this._customer.name + ": ")[0]
+      .split("# Conclusion")[0]
+      .split("In this conversation")[0]
       .trim();
 
     // odd character creeping in
@@ -127,13 +133,4 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
     
     return reply;
   };
-}
-
-
-export const matchStrings = (a: string, b: string, overlap: number): boolean => {
-  const aWords = a.split(" ");
-  const bWords = b.split(" ");
-  const aLength = aWords.length;
-  const bLength = bWords.length;
-  return true;
 }

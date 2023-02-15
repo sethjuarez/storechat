@@ -12,7 +12,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <Provider store={store}>
       <AzureAppInsights>
         <SessionProvider session={pageProps.session}>
-          <ThemeProvider>
+          <ThemeProvider >
             <Component {...pageProps} />
           </ThemeProvider>
         </SessionProvider>

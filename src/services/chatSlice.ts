@@ -11,7 +11,7 @@ const chatSlice = createSlice({
     addTurn: (state, action: PayloadAction<Turn>) => {
       state.push(action.payload);
     },
-    // TODO: perhaps use { reducer, payload } instead of action: PayloadAction
+    // TODO: perhaps use { reducer, prepare } instead of action: PayloadAction
     addRequest: (state, action: PayloadAction<string>) => {
       state.push({ message: action.payload, status: "done", type: "user" });
       state.push({

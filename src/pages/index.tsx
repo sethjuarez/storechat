@@ -3,12 +3,16 @@ import { PromptService } from "@services";
 import { useSession } from "next-auth/react";
 import { addResponse } from "@services/chatSlice";
 import { Box, Text, TabNav } from "@primer/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { currentCustomer } from "@services/customerSlice";
 import { AppHeader, Chat, Sources, Prompt, Content } from "@components";
 import { useAppDispatch, useAppSelector } from "@services/hooks";
-import { currentPrompt, setCurrentPrompt } from "@services/promptSlice";
-import { currentDocument, fetchDocument } from "@services/documentSlice";
+import { currentPrompt, fetchPromptState } from "@services/promptSlice";
+import {
+  currentDocument,
+  fetchDocumentByMessage,
+} from "@services/documentSlice";
+import { setUser } from "@services/userSlice";
 import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 
 const Home = () => {
@@ -18,13 +22,34 @@ const Home = () => {
   const basePrompt = useAppSelector(currentPrompt);
   const chat = useAppSelector((state) => state.chat);
   const document = useAppSelector(currentDocument);
+  const user = useAppSelector((state) => state.user);
+
+  const promptStatus = useAppSelector((state) => state.prompts.status);
+
+  useEffect(() => {
+    if (promptStatus === "idle") {
+      dispatch(fetchPromptState());
+    }
+  }, [promptStatus, dispatch]);
 
   // State
-  const { data } = useSession();
-  const user = {
-    name: data?.user?.name || "",
-    email: data?.user?.email || "",
-  };
+  const { data, status } = useSession();
+  const u = useAppSelector((state) => state.user);
+
+  useEffect(() => {
+    const user = {
+      name: data?.user?.name || "",
+      email: data?.user?.email || "",
+      expires: data?.expires || "",
+      status: status,
+    };
+
+    if (u.email !== user.email) {
+      dispatch(setUser(user));
+    }
+  });
+  
+
   const [prompt, setPrompt] = useState("");
   const [currentTab, setCurrentTab] = useState<
     "prompt" | "sources" | "content"
@@ -32,7 +57,9 @@ const Home = () => {
 
   // events
   const sendPrompt = async (message: string): Promise<void> => {
-    const { contents } = await dispatch(fetchDocument(message)).unwrap();
+    const { contents } = await dispatch(
+      fetchDocumentByMessage(message)
+    ).unwrap();
     const itemDoc = contents.length == 0 ? document : contents;
 
     const service = new PromptService(
@@ -52,7 +79,7 @@ const Home = () => {
   return (
     <>
       <Head>
-        <title>GreenLife - ChatGPT</title>
+        <title>Best For You Organics Company - ChatGPT</title>
       </Head>
       <Box className="main">
         <Box className="header">
@@ -83,7 +110,7 @@ const Home = () => {
             >
               Prompt
             </TabNav.Link>
-            {/* 
+
             <TabNav.Link
               href="#"
               selected={currentTab === "content"}
@@ -94,7 +121,6 @@ const Home = () => {
             >
               Content
             </TabNav.Link>
-            */}
           </TabNav>
 
           <Box
@@ -109,7 +135,7 @@ const Home = () => {
           >
             {currentTab === "sources" && <Sources />}
             {currentTab === "prompt" && <Prompt prompt={prompt} />}
-            {/*currentTab === "content" && <Content />*/}
+            {currentTab === "content" && <Content />}
           </Box>
         </Box>
         <Box className="footer" bg="neutral.emphasisPlus">
