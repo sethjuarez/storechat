@@ -54,7 +54,6 @@ const handler = async (
   const response = await fetch(CHATGPT_URI, options);
   
   const data: TurnResponse = await response.json();
-  //console.log("data", data);
   res.status(200).json(data);
 };
 
