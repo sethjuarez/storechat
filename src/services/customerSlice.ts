@@ -28,7 +28,14 @@ const initialState: CustomerState = {
       age: 23,
       location: "Eastern",
     },
-  ]};
+    {
+      name: "Daniel",
+      image: "/images/danielschneider.jpg",
+      age: 68,
+      location: "Pacific",
+    },
+  ],
+};
 
 const customerSlice = createSlice({
   name: "customers",

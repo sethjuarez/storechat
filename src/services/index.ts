@@ -116,6 +116,7 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
       .split(this._customer.name + ": ")[0]
       .split("# Conclusion")[0]
       .split("In this conversation")[0]
+      .split("# Change Log")[0]
       .trim();
 
     // odd character creeping in
