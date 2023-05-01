@@ -76,7 +76,7 @@ export class PromptService extends JsonService<TurnRequest, TurnResponse> {
           `${acc}${
             cur.type === "user"
               ? this._customer.name + ": " + cur.message + "\n"
-              : "John: " + cur.message + "\n"
+              : "Agent: " + cur.message + "\n"
           }`,
         ""
       );
