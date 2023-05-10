@@ -2,7 +2,20 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
-First, run the development server:
+First, you'll need to set up some services:
+
+for that you can use the powershell `deploy.ps1` script. It will:
+1. create a new resource group for this deployment
+2. create an app registration in AAD
+3. Deploy some azure resources
+   1. Application insights & log analytics workspace
+   2. cosmosdb
+   3. AzureOpenAI
+4. create a local settings file `.env.local` with the variables and secrets needed to run the app locally. 
+   **Important** Do mot commit/push this file to your GitHub repo!
+
+
+Now you can run the development server:
 
 ```bash
 npm run dev
