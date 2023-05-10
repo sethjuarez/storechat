@@ -1,4 +1,4 @@
-$resourcegroupname = "timschstorechat"
+$resourcegroupname = "organicstorechat"
 $deploymentname = $resourcegroupname + "deployment"
 $settingsfile = ".env.local"
 
