@@ -59,3 +59,8 @@ Write-Output "COSMOS_DATABASE=$COSMOS_DATABASE_VALUE"  >> $settingsfile
 else {
     Write-Host "The settings file was already generated. If you want to generate a new one, please delete the file first."
 }
+
+
+$MyRawString = Get-Content -Raw $settingsfile
+$Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False
+[System.IO.File]::WriteAllLines($settingsfile, $MyRawString, $Utf8NoBomEncoding)
